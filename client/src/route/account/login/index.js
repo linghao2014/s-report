@@ -12,7 +12,7 @@ export default React.createClass({
             <div>
                 <AppBar
                     title="登录"
-                    iconElementLeft={<IconButton><BackIcon /></IconButton>}/>
+                    iconElementLeft={<IconButton href="#"><BackIcon /></IconButton>}/>
                 <div className="login-form">
                     <div className="inputs">
                         <TextField
@@ -34,7 +34,7 @@ export default React.createClass({
                         primary
                         fullWidth
                         label="登录"/>
-                    <p className="find"><a href="#">找回密码</a></p>
+                    <p className="find"><a href="#/find">找回密码</a></p>
                 </div>
             </div>
         );

@@ -17,8 +17,8 @@ export default React.createClass({
                     <p>简单好用的日报、周报、月报管理系统</p>
                     <p>免费的信息同步工具</p>
                     <div className="btn">
-                        <RaisedButton label="登录" labelColor={labelColor} style={btnStyle}/>
-                        <RaisedButton label="注册" labelColor={labelColor}/>
+                        <RaisedButton href="#/login" label="登录" labelColor={labelColor} style={btnStyle}/>
+                        <RaisedButton href="#/register" label="注册" labelColor={labelColor}/>
                     </div>
                 </div>
             </div>

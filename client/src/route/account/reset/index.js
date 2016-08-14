@@ -12,7 +12,7 @@ export default React.createClass({
             <div>
                 <AppBar
                     title="设置密码"
-                    iconElementLeft={<IconButton><BackIcon /></IconButton>}/>
+                    iconElementLeft={<IconButton href="#"><BackIcon /></IconButton>}/>
                 <div className="login-form">
                     <div className="inputs">
                         <TextField
