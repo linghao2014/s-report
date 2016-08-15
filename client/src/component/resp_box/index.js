@@ -36,7 +36,9 @@ export default React.createClass({
                     onRequestChange={open=>this.setState({open: open})}
                     open={this.state.open}
                     forceOpen={this.state.forceOpen}/>
-                <div style={{marginLeft: this.state.forceOpen ? '256px' : 0}}>
+                <div
+                    className={this.props.className}
+                    style={{marginLeft: this.state.forceOpen ? '256px' : 0}}>
                     {this.props.children}
                 </div>
             </div>

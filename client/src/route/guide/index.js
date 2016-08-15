@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import RespBox from 'cpn/resp_box';
-import 'sass/login_form.scss';
+import {style} from './index.scss';
 
 const barConf = {title: '欢迎加入'};
 
@@ -13,8 +13,9 @@ export default React.createClass({
     },
     render() {
         return (
-            <RespBox barConf={barConf}>
-                <h2>hello</h2>
+            <RespBox className={style} barConf={barConf}>
+                <h2>注册成功</h2>
+                <p>请联系管理员加入组织或<a href="#">创建一个新组织</a></p>
             </RespBox>
         );
     }
