@@ -2,12 +2,13 @@
  * 报告
  */
 import React from 'react';
-import {FlatButton, Card, CardActions, CardHeader, IconButton, CardText, List, ListItem, Avatar} from 'material-ui';
+import {FlatButton, Card, CardActions, CardHeader, IconButton, CardText, List, ListItem, Avatar, Divider} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import RespBox from 'cpn/resp_box';
 import {style} from './index.scss';
 
 const barConf = {title: '报告', iconElementRight: <IconButton><AddIcon/></IconButton>};
+const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
 
 export default React.createClass({
     getInitialState() {
@@ -18,8 +19,9 @@ export default React.createClass({
             <RespBox className={style} barConf={barConf}>
                 <Card className="item">
                     <CardHeader
+                        className="header"
                         title="张三"
-                        avatar="http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200"
+                        avatar={cover}
                         subtitle="2016-06-02 日报"/>
                     <CardText>
                         <p>1.干了什么事情,哈哈哈</p>
@@ -36,22 +38,39 @@ export default React.createClass({
                     <CardHeader
                         title="前端组"
                         subtitle="2016-06-02 日报"/>
-                    <CardText>
-                        <List>
-                            <ListItem
-                                leftAvatar={<Avatar src="http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200"/>}
-                                primaryText="李伟"
-                                secondaryText={<p>1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节<br/>1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节2</p>}
-                                secondaryTextLines="3"/>
-                            <ListItem
-                                leftAvatar={<Avatar src="http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200"/>}
-                                primaryText="李伟"
-                                secondaryText={<p>1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节<br/>1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节1123412341341234来得及啊圣诞节2</p>}
-                                secondaryTextLines="3"/>
-                        </List>
-                    </CardText>
+                    <div className="team">
+                        <div className="inner-item">
+                            <Avatar
+                                className="avatar"
+                                src={cover}/>
+                            <h3>李伟</h3>
+                            <ul>
+                                <li>1. abc</li>
+                                <li>2. def</li>
+                            </ul>
+                        </div>
+                        <div className="inner-item">
+                            <Avatar
+                                className="avatar"
+                                src={cover}/>
+                            <h3>李伟</h3>
+                            <ul>
+                                <li>1. abc</li>
+                                <li>2. def</li>
+                            </ul>
+                        </div>
+                    </div>
                     <CardActions>
                         <FlatButton label="邮件发送"/>
+                        <div className="not">
+                            <label>暂未发送:</label>
+                            <Avatar
+                                size={30}
+                                src={cover}/>
+                            <Avatar
+                                size={30}
+                                src={cover}/>
+                        </div>
                     </CardActions>
                 </Card>
             </RespBox>
