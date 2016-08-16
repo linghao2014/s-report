@@ -6,8 +6,9 @@ import {FlatButton, Card, CardActions, CardHeader, IconButton, CardText, List, L
 import AddIcon from 'material-ui/svg-icons/content/add';
 import RespBox from 'cpn/resp_box';
 import {style} from './index.scss';
+import Edit from './edit';
 
-const barConf = {title: '报告', iconElementRight: <IconButton><AddIcon/></IconButton>};
+
 const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
 
 export default React.createClass({
@@ -15,6 +16,10 @@ export default React.createClass({
         return {};
     },
     render() {
+        let barConf = {
+            title: '报告',
+            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
+        };
         return (
             <RespBox className={style} barConf={barConf}>
                 <Card className="item">
@@ -73,7 +78,11 @@ export default React.createClass({
                         </div>
                     </CardActions>
                 </Card>
+                <Edit ref="edit"/>
             </RespBox>
         );
+    },
+    _create() {
+        this.refs.edit.toggle(true);
     }
 });
