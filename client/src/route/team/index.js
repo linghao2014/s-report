@@ -47,6 +47,20 @@ export default React.createClass({
                             <span>关注:4</span>
                         </div>
                     </li>
+                    <li>
+                        <h3>超级前端组</h3>
+                        <div className="count">
+                            <span>成员:4</span>
+                            <span>关注:4</span>
+                        </div>
+                    </li>
+                    <li>
+                        <h3>超级前端组</h3>
+                        <div className="count">
+                            <span>成员:4</span>
+                            <span>关注:4</span>
+                        </div>
+                    </li>
                 </ul>
                 <Subheader>我关注的群组</Subheader>
                 <ul className="teams">
