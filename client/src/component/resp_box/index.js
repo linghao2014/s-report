@@ -38,7 +38,7 @@ export default React.createClass({
                     forceOpen={this.state.forceOpen}/>
                 <div
                     className={this.props.className}
-                    style={{marginLeft: this.state.forceOpen ? '256px' : 0}}>
+                    style={{marginLeft: this.state.forceOpen ? '256px' : 0, height: 'calc(100% - 64px)', overflowY: 'auto'}}>
                     {this.props.children}
                 </div>
             </div>

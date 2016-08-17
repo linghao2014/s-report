@@ -23,8 +23,8 @@ export default React.createClass({
                     </a>
                 </div>
                 <Menu>
-                    <MenuItem primaryText="报告"/>
-                    <MenuItem primaryText="群组"/>
+                    <MenuItem href="#/report" primaryText="报告"/>
+                    <MenuItem href="#/team" primaryText="群组"/>
                     <MenuItem primaryText="管理员设置"/>
                 </Menu>
                 <RaisedButton

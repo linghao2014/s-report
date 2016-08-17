@@ -12,6 +12,7 @@ import Find from './route/account/find';
 import Reset from './route/account/reset';
 import Guide from './route/guide';
 import Report from './route/report';
+import Team from './route/team';
 
 injectTapEventPlugin();
 
@@ -34,6 +35,7 @@ render(
             <Route path="reset" component={Reset}/>
             <Route path="guide" component={Guide}/>
             <Route path="report" component={Report}/>
+            <Route path="team" component={Team}/>
         </Route>
     </Router>,
     document.getElementById('app-container'));

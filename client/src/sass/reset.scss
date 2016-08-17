@@ -85,3 +85,8 @@ body {
 a, a:hover {
     color: #333;
 }
+
+html, body, #app-container, div[data-reactroot] {
+    height: 100%;
+    overflow-y: hidden;
+}
