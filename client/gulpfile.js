@@ -35,9 +35,9 @@ gulp.task('serve', function (callback) {
     };
     var compiler = webpack(devConfig);
     new WebPackDevServer(compiler, serverConfig)
-        .listen(8080, 'localhost', function (err) {
+        .listen(8888, 'localhost', function (err) {
             if (err) throw new util.PluginError('webpack-dev-server', err);
-            util.log('[webpack-dev-server]', 'http://localhost:8080');
+            util.log('[webpack-dev-server]', 'http://localhost:8888');
         });
 });
 
