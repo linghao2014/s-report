@@ -9,6 +9,7 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
 import RespBox from 'cpn/resp_box';
+import UserSearch from 'cpn/UserSearch';
 import {style} from './index.scss';
 
 const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=50y50';
@@ -92,10 +93,11 @@ export default React.createClass({
                         </CardText>
                     </Card>
                 </div>
+                <UserSearch ref="search"/>
             </RespBox>
         );
     },
     _addMember() {
-
+        this.refs.search.toggle(true);
     }
 });
