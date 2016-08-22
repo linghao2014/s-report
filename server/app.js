@@ -2,7 +2,6 @@
  * server 入口
  */
 'use strict';
-const session = require('koa-session');
 const bodyParser = require('koa-bodyparser');
 const mongoose = require('mongoose');
 const Koa = require('koa');
@@ -12,11 +11,9 @@ const controller = require('./controller');
 const config = require('./config');
 const logger = require('./lib/logger');
 
-app.keys = [config.server.secret];
-app.use(session(app));
-app.use(bodyParser());
+app.proxy = true;
 
-auth.initialize();
+app.use(bodyParser());
 
 controller.initialize(app);
 

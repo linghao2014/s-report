@@ -12,6 +12,8 @@ const defaultOptions = {
     toJSON: toOptions
 };
 
+mongoose.Promise = global.Promise;
+
 module.exports.schema = function (def, options) {
     toOptions.transform = function (doc, ret) {
         let ignores = ['_id'].concat(options.ignores);
