@@ -74,10 +74,16 @@ router.post('/find', function*() {
         let user = yield User.findByUsername(mail);
         if (user) {
             try {
-                yield util.sendMail({to: mail, html: 'test', subject: '找回密码'});
+                let key = util.encrypt(JSON.stringify({userId: user.id, expires: Date.now() + 3600000}));
+                let link = `http://ddplan.cn/reset/${key}`;
+                let html = `
+                    <p>亲爱的${user.nickname}：</p>
+		            <p>您申请了密码重置。请访问此链接，输入您的新密码：</p>
+		            <a href="${link}">${link}</a>
+		            <p>简报</p>`;
+                yield util.sendMail({to: mail, html: html, subject: '简报 密码重置链接'});
                 this.body = {code: 200};
-            } catch(e) {
-                console.log(e);
+            } catch (e) {
                 this.body = {code: 510, msg: '邮件发送失败'};
             }
         } else {
@@ -86,7 +92,28 @@ router.post('/find', function*() {
     } else {
         this.body = {code: 400, msg: '邮箱格式不正确'}
     }
+});
 
+router.post('/reset', function*() {
+    let key = this.request.body.key;
+    let pass = this.request.body.password;
+    if (pass && key) {
+        try {
+            let info = JSON.parse(util.decrypt(key));
+            if (info.expires > Date.now()) {
+                let user = yield User.findOne({_id: info.userId}).exec();
+                yield thunkify(user.setPassword).call(user, pass);
+                this.body = {code: 200};
+            } else {
+                this.body = {code: 411, msg: '已过期'};
+            }
+        } catch (e) {
+            this.body = {code: 500, msg: '服务端出错'};
+            logger.error('重置密码出误', key, e);
+        }
+    } else {
+        this.body = {code: 400, msg: '参数不完整'}
+    }
 });
 
 module.exports = router;

@@ -26,7 +26,7 @@ module.exports.sendMail = function (mail) {
 
 module.exports.encrypt = function (clear) {
     let cipher = crypto.createCipher('aes192', skey);
-    let encrypted = cipher.update(JSON.stringify(clear), 'utf8', 'hex');
+    let encrypted = cipher.update(clear, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
 };
