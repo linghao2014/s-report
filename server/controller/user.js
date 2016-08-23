@@ -22,7 +22,8 @@ router.post('/login', function* () {
             };
         } else {
             this.body = {
-                code: 401
+                code: 401,
+                msg: '用户名或密码错误'
             };
         }
     } catch (e) {
@@ -101,8 +102,9 @@ router.post('/reset', function*() {
         try {
             let info = JSON.parse(util.decrypt(key));
             if (info.expires > Date.now()) {
-                let user = yield User.findOne({_id: info.userId}).exec();
+                let user = yield User.findById(info.userId).exec();
                 yield thunkify(user.setPassword).call(user, pass);
+                yield user.save();
                 this.body = {code: 200};
             } else {
                 this.body = {code: 411, msg: '已过期'};
@@ -112,8 +114,16 @@ router.post('/reset', function*() {
             logger.error('重置密码出误', key, e);
         }
     } else {
-        this.body = {code: 400, msg: '参数不完整'}
+        this.body = {code: 400, msg: '参数不完整'};
     }
+});
+
+router.get('/get', auth.mustLogin(), function*() {
+    let user = yield User.findById(this.userId).exec();
+    this.body = {
+        code: 200,
+        user: user
+    };
 });
 
 module.exports = router;

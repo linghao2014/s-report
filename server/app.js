@@ -10,10 +10,12 @@ const auth = require('./lib/auth');
 const controller = require('./controller');
 const config = require('./config');
 const logger = require('./lib/logger');
+const apiMiddleware = require('./middleware/api');
 
 app.proxy = true;
 
 app.use(bodyParser());
+app.use(apiMiddleware.errorToJson());
 
 controller.initialize(app);
 

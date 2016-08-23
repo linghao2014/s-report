@@ -16,10 +16,10 @@ mongoose.Promise = global.Promise;
 
 module.exports.schema = function (def, options) {
     toOptions.transform = function (doc, ret) {
-        let ignores = ['_id'].concat(options.ignores);
+        let ignores = options.ignores;
         let rst = {};
         Object.keys(ret)
-            .filter(key => ignores.indexOf(key) == -1)
+            .filter(key => ignores.indexOf(key) == -1 && key[0] != '_')
             .forEach(key => {
                 rst[key] = ret[key];
             });
