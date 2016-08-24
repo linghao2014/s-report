@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
-import {Router, Route , hashHistory, IndexRedirect} from 'react-router';
+import {Router, Route , browserHistory, IndexRedirect} from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {AppBar} from 'material-ui';
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -25,19 +25,26 @@ const App = (props) => {
     );
 };
 
-render(
-    <Router history={hashHistory}>
-        <Route path="/" component={App}>
-            <IndexRedirect to="index"/>
-            <Route path="index" component={Index}/>
-            <Route path="login" component={Login}/>
-            <Route path="register" component={Register}/>
-            <Route path="find" component={Find}/>
-            <Route path="reset" component={Reset}/>
-            <Route path="guide" component={Guide}/>
-            <Route path="report" component={Report}/>
-            <Route path="team" component={Team}/>
-            <Route path="team/edit" component={TeamEdit}/>
-        </Route>
-    </Router>,
+const App2 = React.createClass({
+    render() {
+        return (
+            <MuiThemeProvider>
+                {this.props.children}
+            </MuiThemeProvider>
+        );
+    }
+});
+
+const rootRoute = {
+    path: '/',
+    component: App2,
+    childRoutes: [
+        Login,
+        Register,
+        Find,
+        Reset
+    ]
+};
+
+render(<Router history={browserHistory} routes={rootRoute}/>,
     document.getElementById('app-container'));

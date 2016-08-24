@@ -12,8 +12,7 @@ module.exports.authenticate = User.authenticate();
 module.exports.login = function (ctx, user) {
     let keyData = {
         userId: user.id,
-        expires: Date.now() + maxAge,
-        ip: ctx.request.ip
+        expires: Date.now() + maxAge
     };
     ctx.cookies.set('s_key', util.encrypt(JSON.stringify(keyData)), {
         expires: new Date(keyData.expires),
@@ -23,7 +22,8 @@ module.exports.login = function (ctx, user) {
 
 module.exports.mustLogin = function () {
     return function* (next) {
-        let security = JSON.parse(util.decrypt(this.cookies.get('s_key')));
+        let key = this.cookies.get('s_key');
+        let security = key && JSON.parse(util.decrypt(key));
         if(security && security.expires > Date.now()) {
             this.userId = security.userId;
             yield next;

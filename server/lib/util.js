@@ -9,6 +9,7 @@ const transporter = mailer.createTransport(config.mail);
 const logger = require('./logger');
 const skey = 'bLiXoEdDlsOiDl';// TODO 不要代码里写死
 
+
 module.exports.sendMail = function (mail) {
     let user = config.mail.auth.user;
     !mail.from && (mail.from = `"简报" <${user}>`);

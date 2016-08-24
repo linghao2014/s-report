@@ -12,6 +12,10 @@ const util = require('../lib/util');
 
 router.post('/login', function* () {
     let user = this.request.body;
+    if(!user.username || !user.password) {
+        this.body = {code: 400, msg: '参数不完整'};
+        return;
+    }
     try {
         let result = yield thunkify(auth.authenticate)(user.username, user.password);
         if (result && result.id) {
