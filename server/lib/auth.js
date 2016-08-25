@@ -22,10 +22,7 @@ module.exports.login = function (ctx, user) {
 
 module.exports.mustLogin = function () {
     return function* (next) {
-        let key = this.cookies.get('s_key');
-        let security = key && JSON.parse(util.decrypt(key));
-        if(security && security.expires > Date.now()) {
-            this.userId = security.userId;
+        if (this.userId) {
             yield next;
         } else {
             this.body = {
@@ -33,5 +30,16 @@ module.exports.mustLogin = function () {
                 msg: '未登录'
             };
         }
+    }
+};
+
+module.exports.resolveUser = function () {
+    return function* (next) {
+        let key = this.cookies.get('s_key');
+        let security = key && JSON.parse(util.decrypt(key));
+        if (security && security.expires > Date.now()) {
+            this.userId = security.userId;
+        }
+        yield next;
     }
 };

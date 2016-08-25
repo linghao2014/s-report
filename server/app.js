@@ -11,11 +11,20 @@ const controller = require('./controller');
 const config = require('./config');
 const logger = require('./lib/logger');
 const apiMiddleware = require('./middleware/api');
+const render = require('koa-ejs');
+const path = require('path');
 
 app.proxy = true;
 
+app.use(auth.resolveUser());
 app.use(bodyParser());
 app.use(apiMiddleware.errorToJson());
+render(app, {
+    root: path.join(__dirname, 'view'),
+    viewExt: 'html',
+    layout: false,
+    cache: false
+});
 
 controller.initialize(app);
 
