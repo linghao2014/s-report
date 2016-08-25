@@ -34,7 +34,7 @@ module.exports = {
             },
             {
                 test: /\.css/,
-                loader: ExtractTextPlugin.extract('style', 'css', 'postcss')
+                loader: 'style!css!postcss'
             },
             {
                 test: /\.(png|jpg)$/,
@@ -46,7 +46,7 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract('css!postcss!sass')
+                loader: 'style!css!sass!postcss'
             }
         ]
     },

@@ -6,7 +6,7 @@ import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'mater
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import 'sass/login_form.scss';
 
-export default React.createClass({
+module.exports =  React.createClass({
     render() {
         return (
             <div>
