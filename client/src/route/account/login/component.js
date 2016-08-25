@@ -7,7 +7,7 @@ import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import 'sass/login_form.scss';
 import {fetch} from 'lib/util';
 
-export default React.createClass({
+module.exports = React.createClass({
     getInitialState() {
         return {};
     },

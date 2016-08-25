@@ -12,7 +12,7 @@ module.exports = {
 
     output: {
         path: path.join(__dirname, 'dist'),
-        publicPath: '/',
+        publicPath: '//s.ddplan.cn/',
         filename: 'bundle.js',
         chunkFilename: '[name]_[chunkhash].js'
     },

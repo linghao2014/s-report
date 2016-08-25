@@ -27,3 +27,14 @@ export function fetch(url, option) {
 export function isMail(str) {
     return /^\w+@\w+/.test(str);
 }
+
+export function mustLogin(nextState, replace) {
+    if(!_user.id) {
+        replace({
+            pathname: '/login',
+            state: {
+                nextPathname: nextState.location.pathname
+            }
+        });
+    }
+}
