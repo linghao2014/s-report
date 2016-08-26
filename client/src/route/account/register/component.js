@@ -3,11 +3,12 @@
  */
 import React from 'react';
 import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
-import BackIcon from 'material-ui/svg-icons/navigation/chevron-left'
+import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
+import {browserHistory} from 'react-router';
 import 'sass/login_form.scss';
 import {isMail, fetch} from 'lib/util';
 
-export default React.createClass({
+module.exports = React.createClass({
     getInitialState() {
         return {errors: {}};
     },
@@ -16,7 +17,7 @@ export default React.createClass({
             <div>
                 <AppBar
                     title="注册"
-                    iconElementLeft={<IconButton href="#"><BackIcon /></IconButton>}/>
+                    iconElementLeft={<IconButton onClick={e => browserHistory.go(-1)}><BackIcon /></IconButton>}/>
                 <div className="login-form">
                     <div className="inputs">
                         <TextField

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import {RaisedButton} from 'material-ui';
+import {browserHistory} from 'react-router';
 import {style} from './index.scss';
 
 const labelColor = '#00bcd4';
@@ -17,8 +18,8 @@ module.exports = React.createClass({
                     <p>简单好用的日报、周报、月报管理系统</p>
                     <p>免费的信息同步工具</p>
                     <div className="btn">
-                        <RaisedButton href="#/login" label="登录" labelColor={labelColor} style={btnStyle}/>
-                        <RaisedButton href="#/register" label="注册" labelColor={labelColor}/>
+                        <RaisedButton onClick={e => browserHistory.push('/login')} label="登录" labelColor={labelColor} style={btnStyle}/>
+                        <RaisedButton onClick={e => browserHistory.push('/register')} label="注册" labelColor={labelColor}/>
                     </div>
                 </div>
             </div>

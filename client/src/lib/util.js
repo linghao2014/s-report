@@ -10,16 +10,18 @@ export function fetch(url, option) {
         option.headers = Object.assign({}, option.headers, {'Content-Type': 'application/json'});
     }
     return window.fetch(url, Object.assign({}, option, {credentials: 'include'}))
-        .then(resp=> {
-            if(resp.status == 200) {
-                let data = resp.json();
-                if(data.code == 200) {
-                    return data;
-                } else {
-                    throw data;
-                }
+        .then(resp => {
+            if (resp.status == 200) {
+                return resp.json();
             } else {
                 throw Error('网络错误');
+            }
+        })
+        .then(data => {
+            if (data.code == 200) {
+                return data;
+            } else {
+                throw data;
             }
         });
 }
@@ -29,7 +31,7 @@ export function isMail(str) {
 }
 
 export function mustLogin(nextState, replace) {
-    if(!_user.id) {
+    if (!_user.id) {
         replace({
             pathname: '/login',
             state: {

@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import {Drawer, Menu, MenuItem, RaisedButton, Avatar} from 'material-ui';
+import {browserHistory} from 'react-router';
+import {fetch} from 'lib/util';
 import {style} from './index.scss';
 
 export default React.createClass({
@@ -22,16 +24,24 @@ export default React.createClass({
                     李大伟
                     </a>
                 </div>
-                <Menu>
+                <Menu style={{width: '256px'}}>
                     <MenuItem href="#/report" primaryText="报告"/>
                     <MenuItem href="#/team" primaryText="群组"/>
                     <MenuItem primaryText="管理员设置"/>
                 </Menu>
                 <RaisedButton
+                    onClick={this._logout}
                     className="logout"
                     label="退出"
                     secondary/>
             </Drawer>
         );
+    },
+    _logout() {
+        fetch('/api/user/logout')
+            .then(data => {
+                window._user = {};
+                browserHistory.push('/index');
+            });
     }
 });

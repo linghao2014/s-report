@@ -10,7 +10,7 @@
         }
     }
     .login {
-        margin-top: 20px;
+        margin-top: 10px;
     }
     .find {
         text-align: center;
@@ -19,5 +19,9 @@
         a {
             color: #666;
         }
+    }
+    .err {
+        margin-top: 10px;
+        color: rgb(244, 67, 54);
     }
 }
