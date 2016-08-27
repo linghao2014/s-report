@@ -12,7 +12,7 @@ const util = require('../lib/util');
 
 router.post('/login', function* () {
     let user = this.request.body;
-    if(!user.username || !user.password) {
+    if (!user.username || !user.password) {
         this.body = {code: 400, msg: '参数不完整'};
         return;
     }
@@ -51,7 +51,8 @@ router.post('/register', function* () {
             let result = yield thunkify(User.register).call(User, user, user.password);
             auth.login(this, result);
             this.body = {
-                code: 200
+                code: 200,
+                user: result
             };
             logger.info('新注册用户', result);
         } catch (e) {
@@ -124,7 +125,7 @@ router.post('/reset', function*() {
 });
 
 router.get('/get', auth.mustLogin(), function*() {
-    let user = yield User.findById(this.userId).exec();
+    let user = yield User.findById(this.state.userId).exec();
     this.body = {
         code: 200,
         user: user

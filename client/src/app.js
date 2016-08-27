@@ -4,13 +4,14 @@ import {Router, Route , browserHistory, IndexRedirect, Link} from 'react-router'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {AppBar} from 'material-ui';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+import {Popup} from 'cpn/popup';
 import 'sass/reset.scss';
 import 'sass/login_form.scss';
 
 injectTapEventPlugin();
 
 const App = (props) => {
-    return props.children;
+    return <div id="route-root">{props.children}<Popup/></div>;
 };
 
 const rootRoute = {
@@ -24,6 +25,7 @@ const rootRoute = {
         require('./route/index'),
         require('./route/guide'),
         require('./route/report'),
+        require('./route/group'),
         require('./route/team'),
         require('./route/team/edit')
     ]

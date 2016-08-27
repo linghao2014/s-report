@@ -1,8 +1,10 @@
 /**
- * 用户查找组件
+ * 创建群组
  */
 import React from 'react';
-import {Dialog, FlatButton, AutoComplete, Chip} from 'material-ui';
+import {Dialog, FlatButton, TextField} from 'material-ui';
+import {browserHistory} from 'react-router';
+import {fetch} from 'lib/util';
 
 export default React.createClass({
     getInitialState() {
@@ -16,22 +18,21 @@ export default React.createClass({
                 onTouchTap={this._handleClose}/>,
             <FlatButton
                 primary
+                keyboardFocused
                 label="确定"
                 onTouchTap={this._handleOk}/>
         ];
         return (
             <Dialog
                 contentStyle={{maxWidth: '450px'}}
-                title="选择用户"
+                title="创建组织"
                 actions={actions}
                 open={this.state.open}>
-                <Chip onRequestDelete={e=>e}>展示</Chip>
-                <AutoComplete
-                    hintText="输入姓名查找"
-                    floatingLabelText="搜索用户"
-                    dataSource={this.state.dataSource}
-                    onUpdateInput={this._handleUpdateInput}
-                    fullWidth={true}/>
+                <TextField
+                    fullWidth
+                    onChange={e => this.setState({name: e.target.value})}
+                    hintText="组织名称"
+                    name="name"/>
             </Dialog>
         );
     },
@@ -44,9 +45,14 @@ export default React.createClass({
         this.toggle(false);
     },
     _handleOk() {
-        this.toggle(false);
-    },
-    _handleUpdateInput() {
-
+        fetch('/api/group/create', {method: 'post', body: {name: this.state.name}})
+            .then(data => {
+                window._user.groupId = data.group.id;
+                this.toggle(false);
+                browserHistory.replace('/group');
+            })
+            .catch(e => {
+                this.toggle(false);
+            });
     }
 });
