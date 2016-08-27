@@ -47,6 +47,7 @@ router.post('/register', function* () {
         }
         try {
             user.createTime = Date.now();
+            user.workMail = user.username;
             let result = yield thunkify(User.register).call(User, user, user.password);
             auth.login(this, result);
             this.body = {
@@ -80,14 +81,14 @@ router.post('/find', function*() {
         if (user) {
             try {
                 let key = util.encrypt(JSON.stringify({userId: user.id, expires: Date.now() + 3600000}));
-                let link = `http://ddplan.cn/reset/${key}`;
+                let link = `http://rp.ddplan.cn/reset/${key}`;
                 let html = `
                     <p>亲爱的${user.nickname}：</p>
 		            <p>您申请了密码重置。请访问此链接，输入您的新密码：</p>
 		            <a href="${link}">${link}</a>
 		            <p>简报</p>`;
                 yield util.sendMail({to: mail, html: html, subject: '简报 密码重置链接'});
-                this.body = {code: 200};
+                this.body = {code: 200, user: user};
             } catch (e) {
                 this.body = {code: 510, msg: '邮件发送失败'};
             }

@@ -16,7 +16,7 @@ mongoose.Promise = global.Promise;
 
 module.exports.schema = function (def, options) {
     toOptions.transform = function (doc, ret) {
-        let ignores = options.ignores;
+        let ignores = options && options.ignores || [];
         let rst = {};
         Object.keys(ret)
             .filter(key => ignores.indexOf(key) == -1 && key[0] != '_')

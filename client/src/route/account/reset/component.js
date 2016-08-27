@@ -5,6 +5,7 @@ import React from 'react';
 import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import {browserHistory} from 'react-router';
+import md5 from 'blueimp-md5';
 import {fetch} from 'lib/util';
 import 'sass/login_form.scss';
 
@@ -81,7 +82,10 @@ module.exports = React.createClass({
             err: '',
             loading: true
         });
-        fetch('/api/user/reset', {method: 'post', body: {password: this.state.password, key: this.props.params.key}})
+        fetch('/api/user/reset', {
+            method: 'post',
+            body: {password: md5(this.state.password), key: this.props.params.key}
+        })
             .then(data => {
                 alert('密码重置成功');
                 browserHistory.replace('/login');

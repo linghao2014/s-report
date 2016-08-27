@@ -5,6 +5,7 @@ import React from 'react';
 import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import {browserHistory} from 'react-router';
+import md5 from 'blueimp-md5';
 import 'sass/login_form.scss';
 import {isMail, fetch} from 'lib/util';
 
@@ -124,11 +125,13 @@ module.exports = React.createClass({
                 body: {
                     username: this.state.username,
                     nickname: this.state.nickname,
-                    password: this.state.password
+                    password: md5(this.state.password)
                 }
             })
-                .then(data=> {
+                .then(data => {
                     this.setState({loading: false});
+                    window._user = data.user;
+                    browserHistory.replace('/index');
                 })
                 .catch(e=> {
                     this.setState({loading: false});

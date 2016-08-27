@@ -5,6 +5,7 @@ import React from 'react';
 import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
 import {browserHistory, Link} from 'react-router';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
+import md5 from 'blueimp-md5';
 import {isMail} from 'lib/util';
 import 'sass/login_form.scss';
 import {fetch} from 'lib/util';
@@ -78,7 +79,7 @@ module.exports = React.createClass({
     _getData() {
         return {
             username: this.state.username,
-            password: this.state.password
+            password: md5(this.state.password)
         }
     },
     _login() {
