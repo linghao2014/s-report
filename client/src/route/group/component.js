@@ -90,8 +90,19 @@ module.exports = React.createClass({
                                             <TableRow key={m.id} selectable={false}>
                                                 <TableRowColumn>{i + 1}</TableRowColumn>
                                                 <TableRowColumn>{m.nickname}</TableRowColumn>
-                                                <TableRowColumn><Checkbox checked={m.admin}/></TableRowColumn>
-                                                <TableRowColumn><FlatButton secondary onClick={this._delMember.bind(this, m)} label="删除"/></TableRowColumn>
+                                                <TableRowColumn>
+                                                    <Checkbox
+                                                        disabled={m.id == _user.id}
+                                                        onCheck={this._updateRole.bind(this, m)}
+                                                        checked={m.admin}/>
+                                                </TableRowColumn>
+                                                <TableRowColumn>
+                                                    <FlatButton
+                                                        secondary
+                                                        disabled={m.id == _user.id}
+                                                        onClick={this._delMember.bind(this, m)}
+                                                        label="删除"/>
+                                                </TableRowColumn>
                                             </TableRow>
                                         )
                                     }
@@ -152,5 +163,16 @@ module.exports = React.createClass({
                     popup.error(e.msg);
                 });
         }});
+    },
+    _updateRole(m, e) {
+        let checked = e.target.checked;
+        fetch('/api/group/updateRole', {method: 'post', body: {userId: m.id, admin: checked}})
+            .then(data => {
+                m.admin = checked;
+                this.setState({members: this.state.members});
+            })
+            .catch(e => {
+                popup.error(e.msg);
+            });
     }
 });

@@ -126,4 +126,25 @@ router.post('/delMember', auth.mustLogin(), injectGroup, function* () {
     this.body = ret;
 });
 
+router.post('/updateRole', auth.mustLogin(), injectGroup, function* () {
+    let userId = this.request.body.userId;
+    let admin = this.request.body.admin;
+    let ret = {};
+    if (userId && admin != null) {
+        let group = this.state.group;
+        let member = _.find(group.members, {userId: userId});
+        if (member) {
+            member.admin = admin;
+            yield group.save();
+            ret.code = 200;
+        } else {
+            ret.code = 418;
+            ret.msg = '用户不存在';
+        }
+    } else {
+        ret.code = 400;
+    }
+    this.body = ret;
+});
+
 module.exports = router;
