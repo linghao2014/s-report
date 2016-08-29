@@ -84,7 +84,13 @@ module.exports = React.createClass({
                         <Teams key="1" list={this.state.myTeams} onDelete={this._deleteTeam}/>
                     ]
                 }
-                <Subheader key="0">全部小组 &gt;&gt;</Subheader>
+                {
+                    this.state.followTeams && this.state.followTeams.length &&
+                    [
+                        <Subheader key="0">我关注的小组</Subheader>,
+                        <Teams key="1" list={this.state.followTeams} onDelete={this._deleteTeam}/>
+                    ]
+                }
                 <Dialog
                     contentStyle={{maxWidth: '450px'}}
                     title="新建小组"
