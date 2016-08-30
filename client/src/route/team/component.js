@@ -25,15 +25,28 @@ const Teams = function (props) {
                         <span>关注:{t.followSize}</span>
                     </div>
                     {
-                        t.admin &&
-                        <div className="ops">
-                            <IconButton onTouchTap={props.onDelete.bind(null, t)}>
-                                <DeleteIcon color="#666"/>
-                            </IconButton>
-                            <IconButton onTouchTap={e => browserHistory.push('team/edit')}>
-                                <SetIcon color="#666"/>
-                            </IconButton>
-                        </div>
+                        (()=> {
+                            if (t.admin) {
+                                return (
+                                    <div className="ops">
+                                        <IconButton onTouchTap={props.onDelete.bind(null, t)}>
+                                            <DeleteIcon color="#666"/>
+                                        </IconButton>
+                                        <IconButton onTouchTap={e => browserHistory.push('team/edit')}>
+                                            <SetIcon color="#666"/>
+                                        </IconButton>
+                                    </div>
+                                );
+                            } else {
+                                return <FlatButton
+                                    onClick={props.onFollowChange.bind(null, t)}
+                                    primary={!t.followed}
+                                    secondary={t.followed}
+                                    disabled={!t.canBeFollow}
+                                    className="follow"
+                                    label={t.followed ? '取消关注' : '关注'}/>
+                            }
+                        })()
                     }
                 </li>)
             }
@@ -46,16 +59,21 @@ module.exports = React.createClass({
         return {showCreate: false};
     },
     componentDidMount() {
-        fetch('/api/team/myList')
+        fetch('/api/team/all')
             .then(d => {
-                this.setState({
-                    myTeams: d.teams
+                let myTeams = [];
+                let otherTeams = [];
+                d.teams.forEach(t => {
+                    if (t.admin) {
+                        myTeams.push(t);
+                    } else {
+                        otherTeams.push(t);
+                    }
+
                 });
-            });
-        fetch('/api/team/followList')
-            .then(d => {
                 this.setState({
-                    followTeams: d.teams
+                    myTeams: myTeams,
+                    otherTeams: otherTeams
                 });
             });
     },
@@ -85,10 +103,10 @@ module.exports = React.createClass({
                     ]
                 }
                 {
-                    this.state.followTeams && this.state.followTeams.length &&
+                    this.state.otherTeams && this.state.otherTeams.length &&
                     [
-                        <Subheader key="0">我关注的小组</Subheader>,
-                        <Teams key="1" list={this.state.followTeams} onDelete={this._deleteTeam}/>
+                        <Subheader key="0">其它小组</Subheader>,
+                        <Teams key="1" list={this.state.otherTeams} onFollowChange={this._onFollowChange}/>
                     ]
                 }
                 <Dialog
@@ -147,5 +165,29 @@ module.exports = React.createClass({
                     })
             }
         });
+    },
+    _onFollowChange(t) {
+        let follow = !t.followed;
+        let text = follow ? '关注' : '取消关注';
+        let change = () => {
+            fetch(`/api/team/follow?teamId=${t.id}&follow=${follow}`)
+                .then(d => {
+                    t.followed = follow;
+                    this.forceUpdate();
+                    popup.success(`${text}成功`);
+                })
+                .catch(e => {
+                    popup.error(e.msg || `${text}失败`);
+                });
+        };
+        if (!follow) {
+            popup.confirm({
+                msg: '确定取消关注?',
+                onOk: change
+            });
+        } else {
+            change();
+        }
+
     }
 });
