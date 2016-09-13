@@ -3,6 +3,9 @@
  */
 import React from 'react';
 import {Dialog, FlatButton, AutoComplete, Chip} from 'material-ui';
+import {fetch} from 'lib/util';
+
+const sourceConf = {text: 'nickname', value: 'id'};
 
 export default React.createClass({
     getInitialState() {
@@ -27,9 +30,13 @@ export default React.createClass({
                 open={this.state.open}>
                 <Chip onRequestDelete={e=>e}>展示</Chip>
                 <AutoComplete
+                    openOnFocus
+                    maxSearchResults={6}
                     hintText="输入姓名查找"
                     floatingLabelText="搜索用户"
+                    dataSourceConfig={sourceConf}
                     dataSource={this.state.dataSource}
+                    onNewRequest={this._handleRequest}
                     onUpdateInput={this._handleUpdateInput}
                     fullWidth={true}/>
             </Dialog>
@@ -46,7 +53,15 @@ export default React.createClass({
     _handleOk() {
         this.toggle(false);
     },
-    _handleUpdateInput() {
-
+    _handleUpdateInput(value) {
+        fetch('/api/user/search?name=' + value)
+            .then(d => {
+                this.setState({
+                    dataSource: d.list
+                });
+            });
+    },
+    _handleRequest(e) {
+        debugger
     }
 });

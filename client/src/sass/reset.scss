@@ -86,7 +86,7 @@ a, a:hover {
     color: #333;
 }
 
-html, body, #app-container, div[data-reactroot], #route-root {
+html, body, #app-container, #route-root {
     min-height: 100%;
     overflow-y: hidden;
 }
