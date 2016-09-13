@@ -32,7 +32,7 @@ const Teams = function (props) {
                                         <IconButton onTouchTap={props.onDelete.bind(null, t)}>
                                             <DeleteIcon color="#666"/>
                                         </IconButton>
-                                        <IconButton onTouchTap={e => browserHistory.push('team/edit')}>
+                                        <IconButton onTouchTap={e => browserHistory.push('team/edit/' + t.id)}>
                                             <SetIcon color="#666"/>
                                         </IconButton>
                                     </div>

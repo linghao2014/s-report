@@ -10,17 +10,31 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
 import RespBox from 'cpn/resp_box';
 import UserSearch from 'cpn/UserSearch';
+import popup from 'cpn/popup';
+import {fetch} from 'lib/util';
 import {style} from './index.scss';
 
 const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=50y50';
 
 module.exports = React.createClass({
     getInitialState() {
-        return {};
+        return {info: {}};
+    },
+    componentDidMount() {
+        fetch('/api/team/get?teamId=' + this.props.params.id)
+            .then(d => {
+                this.setState({
+                    info: d.info,
+                    name: d.info.name,
+                    mails: d.info.mails,
+                    follows: d.follows,
+                    members: d.members
+                });
+            });
     },
     render() {
         let barConf = {
-            title: '编辑群组'
+            title: '编辑小组'
         };
         return (
             <RespBox className={style} barConf={barConf}>
@@ -29,19 +43,27 @@ module.exports = React.createClass({
                         <CardHeader title="基本信息" style={{paddingBottom: 0}}/>
                         <CardText style={{paddingTop: 0}}>
                             <TextField
+                                value={this.state.name || ''}
+                                onChange={e => this.setState({name: e.target.value})}
                                 className="text"
                                 hintText="请输入名称"
                                 floatingLabelText="组名"/>
                             <br/>
                             <TextField
                                 multiLine
+                                value={this.state.mails || ''}
+                                onChange={e => this.setState({mails: e.target.value})}
                                 className="text"
                                 hintText="请输入,多个用分号分割"
                                 rowsMax={2}
                                 floatingLabelText="邮件列表"/>
                         </CardText>
                         <CardActions>
-                            <FlatButton primary label="保存"/>
+                            <FlatButton
+                                disabled={this._disableEdit()}
+                                primary
+                                onClick={this._saveInfo}
+                                label="保存"/>
                         </CardActions>
                     </Card>
                     <Card className="card">
@@ -97,7 +119,27 @@ module.exports = React.createClass({
             </RespBox>
         );
     },
+    _disableEdit() {
+        return !this.state.name
+            || (this.state.name == this.state.info.name
+            && this.state.mails == this.state.info.mails);
+    },
     _addMember() {
         this.refs.search.toggle(true);
+    },
+    _saveInfo() {
+        fetch('/api/team/update', {
+            method: 'post', body: {
+                teamId: this.props.params.id,
+                name: this.state.name,
+                mails: this.state.mails
+            }
+        })
+            .then(data => {
+                this.state.info.name = this.state.name;
+                this.state.info.mails = this.state.mails;
+                this.forceUpdate();
+                popup.success('保存成功');
+            });
     }
 });
