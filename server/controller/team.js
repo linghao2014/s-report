@@ -89,6 +89,11 @@ router.post('/update', auth.mustLogin(), injectTeam, function* () {
     this.body = ret;
 });
 
+router.get('/delete', auth.mustLogin(), injectTeam, function* () {
+    yield this.state.team.remove();
+    this.body = {code: 200};
+});
+
 router.post('/addMember', auth.mustLogin(), injectTeam, function* () {
     let ids = this.request.body.ids;
     let ret = {};
@@ -170,6 +175,45 @@ router.get('/followList', auth.mustLogin(), function* () {
             return obj;
         })
     };
+});
+
+router.get('/all', auth.mustLogin(), function*() {
+    let user = yield User.findById(this.state.userId).exec();
+    let teams = yield Team.find({groupId: user.groupId}).exec();
+    this.body = {
+        code: 200,
+        teams: teams.map(team => {
+            let obj = team.toObject();
+            obj.memberSize = team.members.length;
+            obj.followSize = team.follows.length;
+            obj.admin = !!_.find(team.members, {userId: user.id, admin: true});
+            obj.followed = team.canBeFollow && !!_.find(team.follows, {userId: user.id});
+            return obj;
+        })
+    };
+});
+
+router.get('/follow', auth.mustLogin(), function*() {
+    let ret = {};
+    if(this.request.query.teamId && this.request.query.follow) {
+        let team = yield Team.findById(this.request.query.teamId).exec();
+        if(team) {
+            if(team.canBeFollow) {
+                let cdt = {follows: {userId: this.state.userId}};
+                yield team.update(this.request.query.follow == 'true' ? {$push: cdt} : {$pull: cdt}).exec();
+                ret.code = 200;
+            } else {
+                ret.code = 401;
+                ret.meg = '该小组不允许关注';
+            }
+        } else {
+            ret.code = 404;
+            ret.msg = '小组不存在';
+        }
+    } else {
+        ret.code = 400;
+    }
+    this.body = ret;
 });
 
 module.exports = router;

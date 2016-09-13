@@ -132,4 +132,14 @@ router.get('/get', auth.mustLogin(), function*() {
     };
 });
 
+router.get('/search', auth.mustLogin(), function* () {
+    let name = this.request.query.name;
+    let user = yield User.findById(this.state.userId).exec();
+    let list = yield User.find({nickname: {$regex: name}, groupId: user.groupId}).exec();
+    this.body = {
+        code: 200,
+        list: list
+    };
+});
+
 module.exports = router;

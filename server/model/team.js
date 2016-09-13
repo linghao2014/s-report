@@ -10,7 +10,7 @@ let schema = helper.schema({
     mails: String,
     canBeFollow: Boolean,
     members: [{userId: String, admin: Boolean}],
-    follows: [String]
+    follows: [{userId: String}]
 }, {ignores: 'members'});
 
 schema.set('collection', 'teams');
