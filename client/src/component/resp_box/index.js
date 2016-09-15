@@ -7,6 +7,7 @@ import Overlay from 'material-ui/internal/Overlay';
 import TopNav from '../top_nav';
 
 const barStyle = {boxShadow: 0};
+const style = {height: '100%'};
 let requestId;
 
 export default React.createClass({
@@ -22,7 +23,7 @@ export default React.createClass({
     render() {
         let barConf = this.props.barConf;
         return (
-            <div>
+            <div style={style}>
                 <AppBar
                     style={barStyle}
                     onLeftIconButtonTouchTap={this._toggleOpen}
