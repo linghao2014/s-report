@@ -72,20 +72,16 @@ router.get('/get', auth.mustLogin(), injectTeam, function* () {
 });
 
 router.post('/update', auth.mustLogin(), injectTeam, function* () {
+    let team = this.state.team;
     let name = this.request.body.name;
     let mails = this.request.body.mails;
     let canBeFollow = this.request.body.canBeFollow;
     let ret = {};
-    if (name) {
-        let team = this.state.team;
-        team.name = name;
-        team.mails = mails;
-        team.canBeFollow = canBeFollow;
-        yield team.save();
-        ret.code = 200;
-    } else {
-        ret.code = 400;
-    }
+    name !=null && (team.name = name);
+    mails !=null && (team.mails = mails);
+    canBeFollow !=null && (team.canBeFollow = canBeFollow);
+    yield team.save();
+    ret.code = 200;
     this.body = ret;
 });
 

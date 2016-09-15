@@ -19,7 +19,7 @@ const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463
 
 module.exports = React.createClass({
     getInitialState() {
-        return {info: {}, members: []};
+        return {info: {}, members: [], follows: []};
     },
     componentDidMount() {
         fetch('/api/team/get?teamId=' + this.props.params.id)
@@ -112,19 +112,21 @@ module.exports = React.createClass({
                         <CardHeader title="关注设置" style={{paddingBottom: 0}}/>
                         <CardText>
                             <Toggle
+                                toggled={!!this.state.info.canBeFollow}
+                                onToggle={this._followSetChange}
                                 labelPosition="right"
                                 label="允许关注"/>
-                            <div className="avatars">
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                                <Avatar src={cover}/>
-                            </div>
+                            {
+                                this.state.follows.length && this.state.info.canBeFollow
+                                    ?
+                                    <div className="avatars">
+                                        {
+                                            this.state.follows.map(u => <Avatar>{u.nickname[u.nickname.length-1]}</Avatar>)
+                                        }
+                                    </div>
+                                    :
+                                    null
+                            }
                         </CardText>
                     </Card>
                 </div>
@@ -206,9 +208,28 @@ module.exports = React.createClass({
             body: {
                 teamId: this.props.params.id,
                 userId: m.id, admin: checked
-            }})
+            }
+        })
             .then(d => {
                 m.admin = checked;
+                this.forceUpdate();
+                popup.success('操作成功');
+            })
+            .catch(e => {
+                popup.error(e.msg);
+            });
+    },
+    _followSetChange(e) {
+        let canBeFollow = e.target.checked;
+        fetch('/api/team/update', {
+            method: 'post',
+            body: {
+                teamId: this.props.params.id,
+                canBeFollow: canBeFollow
+            }
+        })
+            .then(d => {
+                this.state.info.canBeFollow = canBeFollow;
                 this.forceUpdate();
                 popup.success('操作成功');
             })
