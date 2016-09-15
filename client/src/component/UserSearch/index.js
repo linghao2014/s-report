@@ -3,13 +3,16 @@
  */
 import React from 'react';
 import {Dialog, FlatButton, AutoComplete, Chip} from 'material-ui';
+import _ from 'lodash';
 import {fetch} from 'lib/util';
 
 const sourceConf = {text: 'nickname', value: 'id'};
+const wrapStyle = {display: 'flex', flexWrap: 'no-wrap'};
+const chipStyle = {marginRight: '10px'};
 
 export default React.createClass({
     getInitialState() {
-        return {open: false, dataSource: []};
+        return {open: false, dataSource: [], users: []};
     },
     render() {
         let actions = [
@@ -28,9 +31,18 @@ export default React.createClass({
                 title="选择用户"
                 actions={actions}
                 open={this.state.open}>
-                <Chip onRequestDelete={e=>e}>展示</Chip>
+                <div style={wrapStyle}>
+                    {
+                        this.state.users.map((u, i) => <Chip key={u.id}
+                                                             style={chipStyle}
+                                                             onRequestDelete={this._delUser.bind(this, i)}>
+                            {u.nickname}
+                        </Chip>)
+                    }
+                </div>
                 <AutoComplete
                     openOnFocus
+                    searchText={this.state.searchText || ''}
                     maxSearchResults={6}
                     hintText="输入姓名查找"
                     floatingLabelText="搜索用户"
@@ -52,8 +64,14 @@ export default React.createClass({
     },
     _handleOk() {
         this.toggle(false);
+        if(this.props.onOk) {
+            this.props.onOk(this.state.users);
+        }
     },
     _handleUpdateInput(value) {
+        this.setState({
+            searchText: value
+        });
         fetch('/api/user/search?name=' + value)
             .then(d => {
                 this.setState({
@@ -61,7 +79,15 @@ export default React.createClass({
                 });
             });
     },
-    _handleRequest(e) {
-        debugger
+    _handleRequest(value) {
+        if (typeof value == 'object' && !_.find(this.state.users, {id: value.id})) {
+            this.state.users.push(value);
+            this.state.searchText = '';
+            this.forceUpdate();
+        }
+    },
+    _delUser(index) {
+        this.state.users.splice(index, 1);
+        this.forceUpdate();
     }
 });

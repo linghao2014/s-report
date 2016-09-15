@@ -8,6 +8,7 @@ import {FlatButton, IconButton, TextField, Toggle, Avatar, Table, Card,
 import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
+import _ from 'lodash';
 import RespBox from 'cpn/resp_box';
 import UserSearch from 'cpn/UserSearch';
 import popup from 'cpn/popup';
@@ -18,7 +19,7 @@ const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463
 
 module.exports = React.createClass({
     getInitialState() {
-        return {info: {}};
+        return {info: {}, members: []};
     },
     componentDidMount() {
         fetch('/api/team/get?teamId=' + this.props.params.id)
@@ -85,12 +86,24 @@ module.exports = React.createClass({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody displayRowCheckbox={false}>
-                                    <TableRow selectable={false}>
-                                        <TableRowColumn>1</TableRowColumn>
-                                        <TableRowColumn>John Smith</TableRowColumn>
-                                        <TableRowColumn><Checkbox/></TableRowColumn>
-                                        <TableRowColumn><FlatButton secondary label="删除"/></TableRowColumn>
-                                    </TableRow>
+                                    {
+                                        this.state.members.map((m, i) => <TableRow key={m.id} selectable={false}>
+                                            <TableRowColumn>{i + 1}</TableRowColumn>
+                                            <TableRowColumn>{m.nickname}</TableRowColumn>
+                                            <TableRowColumn>
+                                                <Checkbox
+                                                    disabled={m.id == _user.id}
+                                                    onCheck={this._updateRole.bind(this, m)}
+                                                    checked={!!m.admin}/>
+                                            </TableRowColumn>
+                                            <TableRowColumn>
+                                                <FlatButton
+                                                    secondary
+                                                    onTouchTap={this._delMember.bind(this, m,i)}
+                                                    label="删除"/>
+                                            </TableRowColumn>
+                                        </TableRow>)
+                                    }
                                 </TableBody>
                             </Table>
                         </CardText>
@@ -115,7 +128,7 @@ module.exports = React.createClass({
                         </CardText>
                     </Card>
                 </div>
-                <UserSearch ref="search"/>
+                <UserSearch ref="search" onOk={this._memberResult}/>
             </RespBox>
         );
     },
@@ -140,6 +153,67 @@ module.exports = React.createClass({
                 this.state.info.mails = this.state.mails;
                 this.forceUpdate();
                 popup.success('保存成功');
+            });
+    },
+    _memberResult(users) {
+        if (!users.length) {
+            popup.error('请选择用户');
+            return;
+        }
+        let newMembers = users.filter(u => !_.find(this.state.members, {id: u.id}));
+        if (!newMembers.length) return;
+        fetch('/api/team/addMember', {
+            method: 'post',
+            body: {
+                teamId: this.props.params.id,
+                ids: newMembers.map(u => u.id)
+            }
+        })
+            .then(d => {
+                Array.prototype.push.apply(this.state.members, newMembers);
+                this.forceUpdate();
+                popup.success('添加成功');
+            })
+            .catch(e => {
+                popup.error('添加失败');
+            });
+    },
+    _delMember(user, index) {
+        popup.confirm({
+            msg: '确定删除?', onOk: () => {
+                fetch('/api/team/delMember', {
+                    method: 'post',
+                    body: {
+                        teamId: this.props.params.id,
+                        userId: user.id
+                    }
+                })
+                    .then(d => {
+                        this.state.members.splice(index, 1);
+                        this.forceUpdate();
+                        popup.success('删除成功');
+                    })
+                    .catch(e => {
+                        popup.error('删除失败');
+                    });
+            }
+        });
+    },
+    _updateRole(m, e) {
+        let checked = e.target.checked;
+        fetch('/api/team/updateRole', {
+            method: 'post',
+            body: {
+                teamId: this.props.params.id,
+                userId: m.id, admin: checked
+            }})
+            .then(d => {
+                m.admin = checked;
+                this.forceUpdate();
+                popup.success('操作成功');
+            })
+            .catch(e => {
+                popup.error(e.msg);
             });
     }
 });

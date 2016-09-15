@@ -98,15 +98,14 @@ router.post('/addMember', auth.mustLogin(), injectTeam, function* () {
     let ids = this.request.body.ids;
     let ret = {};
     if (ids) {
-        ids = JSON.parse(ids);
         let team = this.state.team;
-        yield team.update({
-            $push: {
-                members: ids.map(id => {
-                    return {userId: id}
-                })
-            }
-        }).exec();
+        let newMembers = ids.filter(id => !_.find(team.members, {userId: id})).map(id => {
+            return {userId: id, admin: false};
+        });
+        if(newMembers.length) {
+            Array.prototype.push.apply(team.members, newMembers);
+            yield team.save();
+        }
         ret.code = 200;
     } else {
         ret.code = 400;
@@ -195,10 +194,10 @@ router.get('/all', auth.mustLogin(), function*() {
 
 router.get('/follow', auth.mustLogin(), function*() {
     let ret = {};
-    if(this.request.query.teamId && this.request.query.follow) {
+    if (this.request.query.teamId && this.request.query.follow) {
         let team = yield Team.findById(this.request.query.teamId).exec();
-        if(team) {
-            if(team.canBeFollow) {
+        if (team) {
+            if (team.canBeFollow) {
                 let cdt = {follows: {userId: this.state.userId}};
                 yield team.update(this.request.query.follow == 'true' ? {$push: cdt} : {$pull: cdt}).exec();
                 ret.code = 200;
