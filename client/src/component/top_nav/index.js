@@ -44,7 +44,7 @@ export default React.createClass({
                 <SelectableList value={this.state.activeIndex} onChange={this._navTo}>
                     <ListItem value={0} primaryText="报告"/>
                     <ListItem value={1} primaryText="小组"/>
-                    <ListItem value={2} primaryText="组织设置"/>
+                    {_user.groupAdmin ? <ListItem value={2} primaryText="组织设置"/> : null}
                 </SelectableList>
                 <RaisedButton
                     disabled={this.state.loading}

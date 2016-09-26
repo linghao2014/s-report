@@ -2,9 +2,12 @@
  * 报告
  */
 import React from 'react';
-import {FlatButton, Card, CardActions, CardHeader, IconButton, CardText, List, ListItem, Avatar, Divider} from 'material-ui';
+import {FlatButton, Card, CardActions, CardHeader, IconButton,
+    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import RespBox from 'cpn/resp_box';
+import {fetch} from 'lib/util';
+import popup from 'cpn/popup';
 import {style} from './index.scss';
 import Edit from './edit';
 
@@ -13,7 +16,21 @@ const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463
 
 module.exports = React.createClass({
     getInitialState() {
-        return {};
+        return {rps: [], myTeams: []};
+    },
+    componentDidMount() {
+        fetch('/api/report/my')
+            .then(d => {
+                this.setState({
+                    rps: d.list
+                });
+            });
+        fetch('/api/team/myList')
+            .then(d => {
+                this.setState({
+                    myTeams: d.teams
+                });
+            })
     },
     render() {
         let barConf = {
@@ -22,23 +39,26 @@ module.exports = React.createClass({
         };
         return (
             <RespBox className={style} barConf={barConf}>
-                <Card className="item">
-                    <CardHeader
-                        className="header"
-                        title="张三"
-                        avatar={cover}
-                        subtitle="2016-06-02 日报"/>
-                    <CardText>
-                        <p>1.干了什么事情,哈哈哈</p>
-                        <p>2.打酱油悠悠的</p>
-                        <p>3.改bug</p>
-                    </CardText>
-                    <CardActions>
-                        <FlatButton label="编辑"/>
-                        <FlatButton label="删除"/>
-                        <FlatButton label="发送"/>
-                    </CardActions>
-                </Card>
+                {
+                    this.state.rps.map(x => <Card key={x.id} className="item">
+                        <CardHeader
+                            className="header"
+                            title="张三"
+                            avatar={cover}
+                            subtitle={this._renderSubTitle(x)}/>
+                        <CardText>
+                            {
+                                x.content.map((c, i) => <p key={c._id}>{i + 1}.{c.text}</p>)
+                            }
+                        </CardText>
+                        <CardActions>
+                            <FlatButton label="编辑"/>
+                            <FlatButton label="删除" onClick={this._delete.bind(this, x)}/>
+                            <FlatButton label="发送"
+                                        onClick={this._onSend.bind(this, x)}/>
+                        </CardActions>
+                    </Card>)
+                }
                 <Card className="item">
                     <CardHeader
                         title="前端组"
@@ -78,11 +98,88 @@ module.exports = React.createClass({
                         </div>
                     </CardActions>
                 </Card>
-                <Edit ref="edit"/>
+                <Edit ref="edit" onOk={this._onAddOrUpdate}/>
+                <Popover
+                    open={!!this.state.currentRp}
+                    anchorEl={this.state.anchorEl}
+                    anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                    targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                    onRequestClose={e => this.setState({currentRp: null})}>
+                    <Menu onChange={this._sendToTeam}>
+                        {
+                            this.state.myTeams.map(t => <MenuItem key={t.id} value={t.id} primaryText={t.name}/>)
+                        }
+                    </Menu>
+                </Popover>
             </RespBox>
         );
     },
+    _renderSubTitle(rp) {
+        let time = rp.periodTime;
+        if (rp.type == 'day') {
+            return `${time.year}年${time.month}月${time.date}日 日报`;
+        } else if (rp.type == 'week') {
+            return `${time.year}年${time.month}月第${time.week}周 周报`;
+        } else {
+            return `${time.year}年${time.month}月 月报`;
+        }
+    },
     _create() {
         this.refs.edit.toggle(true);
+    },
+    _onAddOrUpdate(rp) {
+        if (rp.id) {
+
+        } else {
+            fetch('/api/report/create', {
+                method: 'post',
+                body: {
+                    report: rp
+                }
+            })
+                .then(d => {
+                    this.state.rps.unshift(d.report);
+                    this.forceUpdate();
+                    popup.success('创建成功');
+                })
+                .catch(e => {
+                    popup.success(e.msg || '创建失败');
+                });
+        }
+    },
+    _delete(rp) {
+        popup.confirm({
+            msg: '确定删除报告?',
+            onOk: () => {
+                fetch('/api/report/delete?id=' + rp.id)
+                    .then(d => {
+                        _.remove(this.state.rps, {id: rp.id});
+                        this.forceUpdate();
+                        popup.success('删除成功');
+                    })
+                    .catch(e => {
+                        popup.success('删除失败');
+                    })
+            }
+        });
+    },
+    _onSend(rp, e) {
+        e.preventDefault();
+        this.setState({anchorEl: e.currentTarget, currentRp: rp});
+    },
+    _sendToTeam(e, teamId) {
+        fetch('/api/report/send', {
+            method: 'post',
+            body: {
+                reportId: this.state.currentRp.id,
+                teamId: teamId
+            }
+        }).then(d => {
+            popup.success('发送成功');
+        })
+        .catch(e => {
+            popup.error('发送失败');
+        });
+        this.setState({anchorEl: null, currentRp: null});
     }
 });

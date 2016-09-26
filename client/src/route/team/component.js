@@ -144,7 +144,7 @@ module.exports = React.createClass({
                     createName: false
                 });
                 popup.success('创建成功');
-                browserHistory.push('team/edit');
+                browserHistory.push('team/edit/' + d.group.id);
             })
             .catch(e => {
                 popup.error(e.msg || '小组创建失败');
