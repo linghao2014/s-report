@@ -48,11 +48,11 @@ module.exports = React.createClass({
                             subtitle={this._renderSubTitle(x)}/>
                         <CardText>
                             {
-                                x.content.map((c, i) => <p key={c._id}>{i + 1}.{c.text}</p>)
+                                x.content.map((c, i) => <p key={i}>{i + 1}.{c.text}</p>)
                             }
                         </CardText>
                         <CardActions>
-                            <FlatButton label="编辑"/>
+                            <FlatButton label="编辑" onClick={this._onEdit.bind(this, x)}/>
                             <FlatButton label="删除" onClick={this._delete.bind(this, x)}/>
                             <FlatButton label="发送"
                                         onClick={this._onSend.bind(this, x)}/>
@@ -129,7 +129,23 @@ module.exports = React.createClass({
     },
     _onAddOrUpdate(rp) {
         if (rp.id) {
-
+            fetch('/api/report/update', {
+                method: 'post',
+                body: {
+                    report: rp
+                }
+            })
+                .then(d => {
+                    let oldRp = _.find(this.state.rps, {id: rp.id});
+                    oldRp.content = rp.content;
+                    oldRp.type = rp.type;
+                    oldRp.periodTime = rp.periodTime;
+                    this.forceUpdate();
+                    popup.success('保存成功');
+                })
+                .catch(e => {
+                    popup.success(e.msg || '保存失败');
+                });
         } else {
             fetch('/api/report/create', {
                 method: 'post',
@@ -167,6 +183,9 @@ module.exports = React.createClass({
         e.preventDefault();
         this.setState({anchorEl: e.currentTarget, currentRp: rp});
     },
+    _onEdit(rp) {
+        this.refs.edit.edit(rp);
+    },
     _sendToTeam(e, teamId) {
         fetch('/api/report/send', {
             method: 'post',
@@ -175,11 +194,11 @@ module.exports = React.createClass({
                 teamId: teamId
             }
         }).then(d => {
-            popup.success('发送成功');
-        })
-        .catch(e => {
-            popup.error('发送失败');
-        });
+                popup.success('发送成功');
+            })
+            .catch(e => {
+                popup.error('发送失败');
+            });
         this.setState({anchorEl: null, currentRp: null});
     }
 });

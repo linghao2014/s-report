@@ -107,12 +107,23 @@ export default React.createClass({
             open: open
         });
     },
+    edit(rp) {
+        let timeList = timeMap[rp.type];
+        this.setState({
+            open: true,
+            id: rp.id,
+            type: rp.type,
+            periodTime: _.find(timeList, rp.periodTime),
+            content: rp.content.map(c => c.text).join('\n')
+        });
+    },
     _handleClose() {
         this.toggle(false);
     },
     _handleOk() {
         if (this.props.onOk) {
             this.props.onOk({
+                id: this.state.id,
                 type: this.state.type,
                 periodTime: this.state.periodTime,
                 content: this.state.content.split('\n').map(x => ({text: x}))
@@ -120,7 +131,7 @@ export default React.createClass({
         }
         this.toggle(false);
     },
-    _onTypeChange(evt, index, value) {
+    _onTypeChange(e, index, value) {
         this.setState({
             type: value,
             periodTime: timeMap[value][0]

@@ -52,6 +52,51 @@ router.post('/create', auth.mustLogin(), function* () {
     }
 });
 
+router.post('/update', auth.mustLogin(), function* () {
+    let rData = this.request.body.report;
+    if (!rData || !rData.id || !rData.content || !rData.type || !rData.periodTime) {
+        this.body = {
+            code: 400
+        };
+    } else {
+        let exists = yield Report.findOne({
+            _id: {$ne: rData.id},
+            userId: this.state.userId,
+            type: rData.type,
+            'periodTime.year': rData.periodTime.year,
+            'periodTime.month': rData.periodTime.month,
+            'periodTime.date': rData.periodTime.date
+        });
+        if (exists) {
+            this.body = {
+                code: 421,
+                msg: '日期冲突'
+            };
+            return;
+        }
+        try {
+            let report = yield Report.findById(rData.id);
+            if (!report) {
+                this.body = {
+                    code: 404
+                };
+            }
+            report.type = rData.type;
+            report.content = rData.content;
+            report.periodTime = rData.periodTime;
+            yield report.save();
+            this.body = {
+                code: 200
+            };
+        } catch (e) {
+            this.body = {
+                code: 500
+            };
+            logger.error('创建报告异常', e.message);
+        }
+    }
+});
+
 router.get('/my', auth.mustLogin(), function* () {
     let list = yield Report.find({userId: this.state.userId}).sort({createTime: -1});
     this.body = {

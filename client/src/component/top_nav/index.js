@@ -42,8 +42,9 @@ export default React.createClass({
                     </a>
                 </div>
                 <SelectableList value={this.state.activeIndex} onChange={this._navTo}>
-                    <ListItem value={0} primaryText="报告"/>
-                    <ListItem value={1} primaryText="小组"/>
+                    <ListItem value={0} primaryText="我的报告"/>
+                    <ListItem value={6} primaryText="小组报告"/>
+                    <ListItem value={1} primaryText="小组设置"/>
                     {_user.groupAdmin ? <ListItem value={2} primaryText="组织设置"/> : null}
                 </SelectableList>
                 <RaisedButton
