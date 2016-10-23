@@ -1,8 +1,11 @@
 /**
- * 一级导航
+ * 顶级导航
  */
 import React from 'react';
 import {Drawer, List, MakeSelectable, ListItem, RaisedButton, Avatar} from 'material-ui';
+import DescIcn from 'material-ui/svg-icons/action/description';
+import TeamIcn from 'material-ui/svg-icons/action/supervisor-account';
+import AdminIcn from 'material-ui/svg-icons/action/verified-user';
 import {browserHistory} from 'react-router';
 import _ from 'lodash';
 import popup from 'cpn/popup';
@@ -10,23 +13,18 @@ import {fetch} from 'lib/util';
 import {style} from './index.scss';
 
 const SelectableList = MakeSelectable(List);
-const navList = ['/report', '/team', '/group'];
+const navList = ['/m/report/my', '/m/report/team', '/m/team', '/m/group'];
+const innerDiv = {paddingLeft: 50};
 
 export default React.createClass({
     getInitialState() {
-        return {open: false};
-    },
-    componentDidMount() {
-        this._unlisten = browserHistory.listen(this._historyChange);
-    },
-    componentWillUnmount() {
-        this._unlisten();
+        return {open: false, current: _.findIndex(navList, x => location.pathname.startsWith(x))};
     },
     shouldComponentUpdate(props, state) {
         return props.forceOpen != this.props.forceOpen
             || props.open != this.props.open
             || state.open != this.state.open
-            || state.activeIndex != this.state.activeIndex;
+            || state.current != this.state.current;
     },
     render() {
         return (
@@ -41,11 +39,29 @@ export default React.createClass({
                         {_user.nickname}
                     </a>
                 </div>
-                <SelectableList value={this.state.activeIndex} onChange={this._navTo}>
-                    <ListItem value={0} primaryText="我的报告"/>
-                    <ListItem value={6} primaryText="小组报告"/>
-                    <ListItem value={1} primaryText="小组设置"/>
-                    {_user.groupAdmin ? <ListItem value={2} primaryText="组织设置"/> : null}
+                <SelectableList value={this.state.current} onChange={this._navTo}>
+                    <ListItem
+                        value={-1}
+                        primaryTogglesNestedList
+                        initiallyOpen
+                        primaryText="报告"
+                        leftIcon={<DescIcn/>}
+                        innerDivStyle={innerDiv}
+                        nestedItems={[
+                        <ListItem
+                          value={0}
+                          primaryText="我的"/>,
+                        <ListItem
+                          value={1}
+                          primaryText="小组"/>
+                    ]}/>
+                    <ListItem
+                        value={2}
+                        leftIcon={<TeamIcn/>}
+                        innerDivStyle={innerDiv}
+                        primaryText="小组"/>
+                    {_user.groupAdmin ? <ListItem value={3} leftIcon={<AdminIcn/>} innerDivStyle={innerDiv}
+                                                  primaryText="管理员设置"/> : null}
                 </SelectableList>
                 <RaisedButton
                     disabled={this.state.loading}
@@ -56,21 +72,9 @@ export default React.createClass({
             </Drawer>
         );
     },
-    _getSelectIndex() {
-        if (location.pathname.startsWith('/report')) {
-            return 0;
-        } else if (location.pathname.startsWith('/team')) {
-            return 1;
-        } else if (location.pathname.startsWith('/group')) {
-            return 2;
-        }
-    },
     _navTo(evt, index) {
+        this.setState({current: index});
         browserHistory.push(navList[index]);
-    },
-    _historyChange(location) {
-        let index = _.findIndex(navList, path => location.pathname.startsWith(path));
-        this.setState({activeIndex: index});
     },
     _logout() {
         this.setState({
@@ -78,7 +82,6 @@ export default React.createClass({
         });
         fetch('/api/user/logout')
             .then(data => {
-                this._unlisten();
                 window._user = {};
                 browserHistory.push('/index');
             })

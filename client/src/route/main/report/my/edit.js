@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {Dialog, FlatButton, SelectField, TextField, MenuItem} from 'material-ui';
-import {edit} from './index.scss';
+import {edit} from '../index.scss';
 
 const types = [
     <MenuItem key="day" value="day" primaryText="日报"/>,

@@ -2,7 +2,6 @@ import React from 'react';
 import {render} from 'react-dom';
 import {Router, Route , browserHistory, IndexRedirect, Link} from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import {AppBar} from 'material-ui';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import {Popup} from 'cpn/popup';
 import 'sass/reset.scss';
@@ -18,16 +17,10 @@ const rootRoute = {
     path: '/',
     component: App,
     childRoutes: [
-        require('./route/account/login'),
-        require('./route/account/register'),
-        require('./route/account/find'),
-        require('./route/account/reset'),
+        require('./route/account'),
         require('./route/index'),
         require('./route/guide'),
-        require('./route/report'),
-        require('./route/group'),
-        require('./route/team'),
-        require('./route/team/edit')
+        require('./route/main')
     ]
 };
 

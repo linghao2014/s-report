@@ -8,7 +8,7 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import RespBox from 'cpn/resp_box';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
-import {style} from './index.scss';
+import {style} from '../index.scss';
 import Edit from './edit';
 
 
@@ -38,7 +38,7 @@ module.exports = React.createClass({
             iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
         };
         return (
-            <RespBox className={style} barConf={barConf}>
+            <div className={style} barConf={barConf}>
                 {
                     this.state.rps.map(x => <Card key={x.id} className="item">
                         <CardHeader
@@ -111,7 +111,7 @@ module.exports = React.createClass({
                         }
                     </Menu>
                 </Popover>
-            </RespBox>
+            </div>
         );
     },
     _renderSubTitle(rp) {

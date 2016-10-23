@@ -94,7 +94,7 @@ module.exports = React.createClass({
                 onTouchTap={this._createTeam}/>
         ];
         return (
-            <RespBox className={style} barConf={barConf}>
+            <div className={style} barConf={barConf}>
                 {
                     this.state.myTeams && this.state.myTeams.length &&
                     [
@@ -126,7 +126,7 @@ module.exports = React.createClass({
                         labelPosition="right"
                         label="允许关注"/>
                 </Dialog>
-            </RespBox>
+            </div>
         );
     },
     _createTeam() {

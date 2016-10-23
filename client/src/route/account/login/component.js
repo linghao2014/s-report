@@ -51,7 +51,7 @@ module.exports = React.createClass({
                         primary
                         fullWidth
                         label={this.state.loading ? '登录中...' : '登录'}/>
-                    <p className="find"><Link to="/find">找回密码</Link></p>
+                    <p className="find"><Link to="/account/find">找回密码</Link></p>
                 </div>
             </div>
         );

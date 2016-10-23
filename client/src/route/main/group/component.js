@@ -48,7 +48,7 @@ module.exports = React.createClass({
                 onTouchTap={this._addMember}/>
         ];
         return (
-            <RespBox className={style} barConf={barConf}>
+            <div className={style} barConf={barConf}>
                 <div className="box">
                     <Card className="card">
                         <CardHeader title="基本信息" style={{paddingBottom: 0}}/>
@@ -122,7 +122,7 @@ module.exports = React.createClass({
                         onChange={e => this.setState({addMail: e.target.value})}
                         fullWidth={true}/>
                 </Dialog>
-            </RespBox>
+            </div>
         );
     },
     _saveInfo() {
