@@ -5,11 +5,10 @@ import React from 'react';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
-import RespBox from 'cpn/resp_box';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
-import {style} from '../index.scss';
-import Edit from './edit';
+import {style} from '../../index.scss';
+import pubsub from 'vanilla-pubsub';
 
 
 const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
@@ -19,6 +18,11 @@ module.exports = React.createClass({
         return {rps: [], myTeams: []};
     },
     componentDidMount() {
+        let barConf = {
+            title: '报告',
+            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
+        };
+        pubsub.publish('config.appBar', barConf);
         fetch('/api/report/my')
             .then(d => {
                 this.setState({
@@ -33,72 +37,28 @@ module.exports = React.createClass({
             })
     },
     render() {
-        let barConf = {
-            title: '报告',
-            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
-        };
         return (
-            <div className={style} barConf={barConf}>
+            <div className={style}>
                 {
                     this.state.rps.map(x => <Card key={x.id} className="item">
                         <CardHeader
                             className="header"
-                            title="张三"
-                            avatar={cover}
-                            subtitle={this._renderSubTitle(x)}/>
+                            title={x.periodDesc}
+                            subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
                         <CardText>
                             {
-                                x.content.map((c, i) => <p key={i}>{i + 1}.{c.text}</p>)
+                                x.content
                             }
                         </CardText>
                         <CardActions>
                             <FlatButton label="编辑" onClick={this._onEdit.bind(this, x)}/>
                             <FlatButton label="删除" onClick={this._delete.bind(this, x)}/>
                             <FlatButton label="发送"
+                                        disabled={x.toTeam && !!x.toTeam.teamName}
                                         onClick={this._onSend.bind(this, x)}/>
                         </CardActions>
                     </Card>)
                 }
-                <Card className="item">
-                    <CardHeader
-                        title="前端组"
-                        subtitle="2016-06-02 日报"/>
-                    <div className="team">
-                        <div className="inner-item">
-                            <Avatar
-                                className="avatar"
-                                src={cover}/>
-                            <h3>李伟</h3>
-                            <ul>
-                                <li>1. abc</li>
-                                <li>2. def</li>
-                            </ul>
-                        </div>
-                        <div className="inner-item">
-                            <Avatar
-                                className="avatar"
-                                src={cover}/>
-                            <h3>李伟</h3>
-                            <ul>
-                                <li>1. abc</li>
-                                <li>2. def</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <CardActions>
-                        <FlatButton label="邮件发送"/>
-                        <div className="not">
-                            <label>暂未发送:</label>
-                            <Avatar
-                                size={30}
-                                src={cover}/>
-                            <Avatar
-                                size={30}
-                                src={cover}/>
-                        </div>
-                    </CardActions>
-                </Card>
-                <Edit ref="edit" onOk={this._onAddOrUpdate}/>
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
@@ -113,16 +73,6 @@ module.exports = React.createClass({
                 </Popover>
             </div>
         );
-    },
-    _renderSubTitle(rp) {
-        let time = rp.periodTime;
-        if (rp.type == 'day') {
-            return `${time.year}年${time.month}月${time.date}日 日报`;
-        } else if (rp.type == 'week') {
-            return `${time.year}年${time.month}月第${time.week}周 周报`;
-        } else {
-            return `${time.year}年${time.month}月 月报`;
-        }
     },
     _create() {
         this.refs.edit.toggle(true);
@@ -187,6 +137,7 @@ module.exports = React.createClass({
         this.refs.edit.edit(rp);
     },
     _sendToTeam(e, teamId) {
+        let reportId = this.state.currentRp.id;
         fetch('/api/report/send', {
             method: 'post',
             body: {
@@ -194,6 +145,8 @@ module.exports = React.createClass({
                 teamId: teamId
             }
         }).then(d => {
+                _.find(this.state.rps, {id: reportId}).toTeam = d.toTeam;
+                this.forceUpdate();
                 popup.success('发送成功');
             })
             .catch(e => {

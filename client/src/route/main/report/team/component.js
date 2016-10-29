@@ -5,7 +5,6 @@ import React from 'react';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
-import RespBox from 'cpn/resp_box';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../index.scss';

@@ -9,7 +9,6 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
 import _ from 'lodash';
-import RespBox from 'cpn/resp_box';
 import UserSearch from 'cpn/UserSearch';
 import popup from 'cpn/popup';
 import {fetch} from 'lib/util';
@@ -38,7 +37,7 @@ module.exports = React.createClass({
             title: '编辑小组'
         };
         return (
-            <RespBox className={style} barConf={barConf}>
+            <div className={style} barConf={barConf}>
                 <div className="box">
                     <Card className="card">
                         <CardHeader title="基本信息" style={{paddingBottom: 0}}/>
@@ -131,7 +130,7 @@ module.exports = React.createClass({
                     </Card>
                 </div>
                 <UserSearch ref="search" onOk={this._memberResult}/>
-            </RespBox>
+            </div>
         );
     },
     _disableEdit() {

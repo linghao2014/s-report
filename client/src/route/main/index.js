@@ -4,7 +4,8 @@
 import React from 'react';
 import {AppBar} from 'material-ui';
 import Overlay from 'material-ui/internal/Overlay';
-import TopNav from 'cpn/top_nav';
+import TopNav from 'cpn/TopNav';
+import pubsub from 'vanilla-pubsub';
 
 const barStyle = {boxShadow: 0};
 const style = {height: '100%'};
@@ -15,13 +16,17 @@ const Cpn = React.createClass({
         return {forceOpen: false, open: false};
     },
     componentWillMount() {
+        pubsub.subscribe('config.appBar', c => this.setState({barConf: c}));
         this._calcOpen();
     },
     componentDidMount() {
         window.onresize = this._onWinResize
     },
+    componentWillUnmount() {
+        pubsub.unsubscribe('config.appBar');
+    },
     render() {
-        let barConf = this.props.barConf;
+        let barConf = this.state.barConf;
         return (
             <div style={style}>
                 <AppBar

@@ -20,23 +20,8 @@ router.post('/create', auth.mustLogin(), function* () {
             code: 400
         };
     } else {
-        let exists = yield Report.findOne({
-            userId: this.state.userId,
-            type: rData.type,
-            'periodTime.year': rData.periodTime.year,
-            'periodTime.month': rData.periodTime.month,
-            'periodTime.date': rData.periodTime.date
-        });
-        if (exists) {
-            this.body = {
-                code: 421,
-                msg: '请勿重复创建'
-            };
-            return;
-        }
         try {
             rData.userId = this.state.userId;
-            rData.createTime = Date.now();
             let report = new Report(rData);
             yield report.save();
             this.body = {
@@ -59,21 +44,6 @@ router.post('/update', auth.mustLogin(), function* () {
             code: 400
         };
     } else {
-        let exists = yield Report.findOne({
-            _id: {$ne: rData.id},
-            userId: this.state.userId,
-            type: rData.type,
-            'periodTime.year': rData.periodTime.year,
-            'periodTime.month': rData.periodTime.month,
-            'periodTime.date': rData.periodTime.date
-        });
-        if (exists) {
-            this.body = {
-                code: 421,
-                msg: '日期冲突'
-            };
-            return;
-        }
         try {
             let report = yield Report.findById(rData.id);
             if (!report) {
@@ -128,34 +98,38 @@ router.get('/delete', auth.mustLogin(), function* () {
 
 router.post('/send', auth.mustLogin(), function* () {
     let rp = yield Report.findById(this.request.body.reportId);
-    if (rp) {
+    let team = yield Team.findById(this.request.body.teamId);
+    if (rp && team) {
         let trp = yield TeamReport.findOne({
             teamId: this.request.body.teamId,
-            type: rp.type,
-            'periodTime.year': rp.periodTime.year,
-            'periodTime.month': rp.periodTime.month,
-            'periodTime.date': rp.periodTime.date
+            periodDesc: rp.periodDesc
         });
         if (!trp) {
             trp = new TeamReport({
                 teamId: this.request.body.teamId,
                 type: rp.type,
-                periodTime: rp.periodTime,
+                periodDesc: rp.periodDesc,
                 list: []
             });
         }
-        if (_.find(trp.list, {id: rp.id})) {
-            this.body = {
-                code: 467,
-                msg: '请勿重复发送'
-            };
+        let send = _.find(trp.list, {userId: rp.userId});
+        if (send) {
+            send.reportId = rp.id;
+            send.content = rp.content;
         } else {
-            trp.list.push(rp);
-            yield trp.save();
-            this.body = {
-                code: 200
-            };
+            trp.list.push({
+                userId: rp.userId,
+                reportId: rp.id,
+                content: rp.content
+            });
         }
+        rp.toTeam = {teamId: team.id, teamName: team.name, teamReportId: trp.id};
+        yield rp.save();
+        yield trp.save();
+        this.body = {
+            code: 200,
+            toTeam: rp.toTeam
+        };
     }
 });
 

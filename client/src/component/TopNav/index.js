@@ -13,7 +13,7 @@ import {fetch} from 'lib/util';
 import {style} from './index.scss';
 
 const SelectableList = MakeSelectable(List);
-const navList = ['/m/report/my', '/m/report/team', '/m/team', '/m/group'];
+const navList = ['/m/report/my/list', '/m/report/team', '/m/team', '/m/group'];
 const innerDiv = {paddingLeft: 50};
 
 export default React.createClass({

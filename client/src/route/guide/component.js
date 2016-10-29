@@ -2,7 +2,6 @@
  * 进入引导
  */
 import React from 'react';
-import RespBox from 'cpn/resp_box';
 import {style} from './index.scss';
 import CreateGroup from './createGroup';
 

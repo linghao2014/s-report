@@ -5,10 +5,13 @@
 let helper = require('./helper');
 let schema = helper.schema({
     teamId: String,
-    createTime: Number,
+    createTime: Date,
+    updateTime: Date,
     type: String,
-    periodTime: {year: Number, month: Number, date: Number, week: Number},
-    list: [{userId: String, content: [{text: String}]}]
+    periodDesc: String,
+    list: [{userId: String, reportId: String, content: String}]
+}, {
+    timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}
 });
 
 schema.set('collection', 'team_reports');

@@ -11,7 +11,6 @@ import SetIcon from 'material-ui/svg-icons/action/settings';
 import _ from 'lodash';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
-import RespBox from 'cpn/resp_box';
 import UserSearch from 'cpn/UserSearch';
 import {style} from './index.scss';
 
