@@ -10,9 +10,6 @@ import popup from 'cpn/popup';
 import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 
-
-const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
-
 module.exports = React.createClass({
     getInitialState() {
         return {rps: [], myTeams: []};

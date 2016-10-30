@@ -13,11 +13,11 @@ module.exports =  React.createClass({
     },
     render() {
         return (
-            <RespBox className={style} barConf={barConf}>
+            <div className={style} barConf={barConf}>
                 <h2>你还未找到组织哦~</h2>
                 <p>请联系管理员加入组织或<a onClick={this._create}>创建一个新组织</a></p>
                 <CreateGroup ref="dialog"/>
-            </RespBox>
+            </div>
         );
     },
     _create() {

@@ -75,6 +75,35 @@ router.get('/my', auth.mustLogin(), function* () {
     };
 });
 
+router.get('/team', auth.mustLogin(), function* () {
+    let userId = this.state.userId;
+    let teams = yield Team.find({members: {$elemMatch: {userId: userId}}}).exec();
+    let followTeams = yield Team.find({follows: {$elemMatch: {userId: userId}}}).exec();
+    let teamMap = {};
+    let userMap = {};
+    let teamIds = [];
+    teams.concat(followTeams).forEach(t => {
+        teamMap[t.id] = t;
+        teamIds.push(t.id);
+    });
+    let list = yield TeamReport.find({teamId: {$in: teamIds}}).sort({createTime: -1});
+    list.forEach(l => {
+        l.list.forEach(r => {
+            userMap[r.userId] = true;
+        });
+    });
+    let users = yield User.find({_id: {$in: Object.keys(userMap)}});
+    users.forEach(u => {
+        userMap[u.id] = u;
+    });
+    this.body = {
+        code: 200,
+        list: list,
+        teamMap: teamMap,
+        userMap: userMap
+    };
+});
+
 router.get('/delete', auth.mustLogin(), function* () {
     let rp = yield Report.findById(this.request.query.id);
     if (rp) {
