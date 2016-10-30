@@ -11,6 +11,7 @@ import _ from 'lodash';
 import popup from 'cpn/popup';
 import {fetch} from 'lib/util';
 import {style} from './index.scss';
+import pubsub from 'vanilla-pubsub';
 
 const SelectableList = MakeSelectable(List);
 const navList = ['/m/report/my/list', '/m/report/team', '/m/team', '/m/group'];
@@ -18,13 +19,20 @@ const innerDiv = {paddingLeft: 50};
 
 export default React.createClass({
     getInitialState() {
-        return {open: false, current: _.findIndex(navList, x => location.pathname.startsWith(x))};
+        return {
+            open: false,
+            current: _.findIndex(navList, x => location.pathname.startsWith(x)),
+            loginUser: window._user
+        };
     },
-    shouldComponentUpdate(props, state) {
-        return props.forceOpen != this.props.forceOpen
-            || props.open != this.props.open
-            || state.open != this.state.open
-            || state.current != this.state.current;
+    componentWillMount() {
+        pubsub.subscribe('loginUser.change', this._upLoginUser);
+    },
+    componentWillUnmount() {
+        pubsub.unsubscribe('loginUser.change', this._upLoginUser);
+    },
+    _upLoginUser(u) {
+        this.setState({loginUser: u});
     },
     render() {
         return (
@@ -35,11 +43,15 @@ export default React.createClass({
                 <h1>简报</h1>
                 <div className="user">
                     <a href="#">
-                        <Avatar className="avatar">{_user.nickname.charAt(_user.nickname.length - 1)}</Avatar>
-                        {_user.nickname}
+                        <Avatar
+                            className="avatar">{this.state.loginUser.nickname.charAt(this.state.loginUser.nickname.length - 1)}</Avatar>
+                        {this.state.loginUser.nickname}
                     </a>
                 </div>
-                <SelectableList value={this.state.current} onChange={this._navTo}>
+                <SelectableList
+                    style={{display: this.state.loginUser.groupId ? 'block': 'none'}}
+                    value={this.state.current}
+                    onChange={this._navTo}>
                     <ListItem
                         value={-1}
                         primaryTogglesNestedList
@@ -60,8 +72,9 @@ export default React.createClass({
                         leftIcon={<TeamIcn/>}
                         innerDivStyle={innerDiv}
                         primaryText="小组"/>
-                    {_user.groupAdmin ? <ListItem value={3} leftIcon={<AdminIcn/>} innerDivStyle={innerDiv}
-                                                  primaryText="管理员设置"/> : null}
+                    {this.state.loginUser.groupAdmin ?
+                        <ListItem value={3} leftIcon={<AdminIcn/>} innerDivStyle={innerDiv}
+                                  primaryText="管理员设置"/> : null}
                 </SelectableList>
                 <RaisedButton
                     disabled={this.state.loading}
@@ -81,11 +94,12 @@ export default React.createClass({
             loading: true
         });
         fetch('/api/user/logout')
-            .then(data => {
+            .then(d => {
                 window._user = {};
                 browserHistory.push('/index');
             })
             .catch(e => {
+                debugger
                 popup.error('退出失败');
                 this.setState({
                     loading: false

@@ -19,7 +19,6 @@ const rootRoute = {
     childRoutes: [
         require('./route/account'),
         require('./route/index'),
-        require('./route/guide'),
         require('./route/main')
     ]
 };

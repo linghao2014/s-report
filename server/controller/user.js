@@ -95,7 +95,7 @@ router.post('/find', function*() {
 router.post('/reset', function*() {
     let key = this.request.params.key;
     let pass = this.request.params.password;
-    if(!pass || !key) {
+    if (!pass || !key) {
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
     let info = JSON.parse(util.decrypt(key));
@@ -108,7 +108,9 @@ router.post('/reset', function*() {
         throw new BusinessError(411, '链接已过期');
     }
 });
-
+/**
+ * 获取登录用户
+ */
 router.get('/get', auth.mustLogin(), function*() {
     let user = yield User.findById(this.state.userId).exec();
     this.body = {
@@ -116,7 +118,9 @@ router.get('/get', auth.mustLogin(), function*() {
         user: user
     };
 });
-
+/**
+ * 搜索用户
+ */
 router.get('/search', auth.mustLogin(), function* () {
     let name = this.request.query.name;
     let user = yield User.findById(this.state.userId).exec();

@@ -5,7 +5,6 @@
 let helper = require('./helper');
 let schema = helper.schema({
     name: String,
-    createTime: Number,
     members: [{userId: String, admin: Boolean}]
 }, {ignores: 'members'});
 

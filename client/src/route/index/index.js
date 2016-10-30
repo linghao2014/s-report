@@ -5,7 +5,7 @@ module.exports = {
             if(_user.groupId) {
                 replace('/m/report');
             } else {
-                replace('/guide');
+                replace('/m/guide');
             }
         }
     },

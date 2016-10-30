@@ -16,14 +16,17 @@ const Cpn = React.createClass({
         return {forceOpen: false, open: false};
     },
     componentWillMount() {
-        pubsub.subscribe('config.appBar', c => this.setState({barConf: c}));
+        pubsub.subscribe('config.appBar', this._upBarConf);
         this._calcOpen();
     },
     componentDidMount() {
         window.onresize = this._onWinResize
     },
     componentWillUnmount() {
-        pubsub.unsubscribe('config.appBar');
+        pubsub.unsubscribe('config.appBar', this._upBarConf);
+    },
+    _upBarConf(c) {
+        this.setState({barConf: c});
     },
     render() {
         let barConf = this.state.barConf;
@@ -76,6 +79,7 @@ module.exports = {
     path: 'm',
     component: Cpn,
     childRoutes: [
+        require('./guide'),
         require('./group'),
         require('./report'),
         require('./team')
