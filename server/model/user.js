@@ -1,12 +1,11 @@
 /**
- * 用户
+ * 用户model
  */
 'use strict';
 let helper = require('./helper');
 let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
     nickname: String,
-    createTime: Number,
     workMail: String,
     groupId: String
 }, {

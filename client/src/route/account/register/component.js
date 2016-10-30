@@ -2,7 +2,7 @@
  * 注册
  */
 import React from 'react';
-import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
+import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider, Snackbar} from 'material-ui';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import {browserHistory} from 'react-router';
 import md5 from 'blueimp-md5';
@@ -24,41 +24,37 @@ module.exports = React.createClass({
                         <TextField
                             name="username"
                             type="mail"
-                            errorText={this.state.errors.username}
                             onChange={evt=>this.setState({username: evt.target.value})}
-                            onBlur={this._checkMail}
                             fullWidth
                             underlineShow={false}
+                            onKeyPress={this._checkEnter}
                             hintText="邮箱"/>
                         <Divider/>
                         <TextField
                             name="name"
                             type="text"
-                            errorText={this.state.errors.nickname}
                             onChange={evt=>this.setState({nickname: evt.target.value})}
-                            onBlur={this._checkNick}
                             fullWidth
                             underlineShow={false}
+                            onKeyPress={this._checkEnter}
                             hintText="昵称"/>
                         <Divider/>
                         <TextField
                             name="password"
                             type="password"
-                            errorText={this.state.errors.password}
                             onChange={evt=>this.setState({password: evt.target.value})}
-                            onBlur={this._checkPass}
                             fullWidth
                             underlineShow={false}
+                            onKeyPress={this._checkEnter}
                             hintText="密码"/>
                         <Divider/>
                         <TextField
                             name="repeatPassword"
                             type="password"
-                            errorText={this.state.errors.password2}
-                            onBlur={this._checkPass2}
                             onChange={evt=>this.setState({password2: evt.target.value})}
                             fullWidth
                             underlineShow={false}
+                            onKeyPress={this._checkEnter}
                             hintText="确认密码"/>
                     </div>
                     <RaisedButton
@@ -69,50 +65,51 @@ module.exports = React.createClass({
                         fullWidth
                         label={this.state.loading ? '注册中...' : '注册'}/>
                 </div>
+                <Snackbar open={!!this.state.errMsg}
+                          message={this.state.errMsg || ''}
+                          autoHideDuration={2000}
+                          onRequestClose={e => this.setState({errMsg: ''})}/>
             </div>
         );
     },
     _checkMail() {
         if (!this.state.username) {
-            this.state.errors.username = '请输入邮箱';
+            this.state.errMsg = '请输入邮箱';
         } else if (!isMail(this.state.username)) {
-            this.state.errors.username = '邮箱格式不正确';
-        } else {
-            this.state.errors.username = null;
+            this.state.errMsg = '邮箱格式不正确';
         }
-        this.setState(this.state);
-        return !this.state.errors.username;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _checkNick() {
         if (!this.state.nickname) {
-            this.state.errors.nickname = '请输入昵称';
-        } else {
-            this.state.errors.nickname = null;
+            this.state.errMsg = '请输入昵称';
         }
-        this.setState(this.state);
-        return !this.state.errors.nickname;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _checkPass() {
         if (!this.state.password) {
-            this.state.errors.password = '请输入密码';
+            this.state.errMsg = '请输入密码';
         } else if (this.state.password.length < 6) {
-            this.state.errors.password = '密码长度不能少于6位';
-        } else {
-            this.state.errors.password = null;
+            this.state.errMsg = '密码长度不能少于6位';
         }
-        this.setState(this.state);
-        return !this.state.errors.password;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _checkPass2() {
         if (!this.state.password2) {
-            this.state.errors.password2 = '请再次确认密码';
+            this.state.errMsg = '请再次确认密码';
         } else if (this.state.password !== this.state.password2) {
-            this.state.errors.password2 = '密码输入不一致';
-        } else {
-            this.state.errors.password2 = null;
+            this.state.errMsg = '密码输入不一致';
         }
-        this.setState(this.state);
-        return !this.state.errors.password2;
+        this.forceUpdate();
+        return !this.state.errMsg;
+    },
+    _checkEnter(e) {
+        if(e.which == 13) {
+            this._register();
+        }
     },
     _register() {
         if (this._checkMail()

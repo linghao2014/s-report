@@ -2,7 +2,7 @@
  * 登录
  */
 import React from 'react';
-import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
+import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider, Snackbar} from 'material-ui';
 import {browserHistory, Link} from 'react-router';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import md5 from 'blueimp-md5';
@@ -23,9 +23,8 @@ module.exports = React.createClass({
                 <div className="login-form">
                     <div className="inputs">
                         <TextField
+                            onKeyPress={this._checkEnter}
                             onChange={evt=>this.setState({username: evt.target.value})}
-                            onBlur={this._checkMail}
-                            errorText={this.state.errors.username}
                             name="username"
                             type="mail"
                             fullWidth
@@ -33,10 +32,8 @@ module.exports = React.createClass({
                             hintText="邮箱"/>
                         <Divider/>
                         <TextField
-                            onKeyDown={e => e.which == 13 && this._login()}
+                            onKeyPress={this._checkEnter}
                             onChange={evt=>this.setState({password: evt.target.value})}
-                            onBlur={this._checkPass}
-                            errorText={this.state.errors.password}
                             name="password"
                             type="password"
                             fullWidth
@@ -53,28 +50,30 @@ module.exports = React.createClass({
                         label={this.state.loading ? '登录中...' : '登录'}/>
                     <p className="find"><Link to="/account/find">找回密码</Link></p>
                 </div>
+                <Snackbar open={!!this.state.errMsg}
+                          message={this.state.errMsg || ''}
+                          autoHideDuration={2000}
+                          onRequestClose={e => this.setState({errMsg: ''})}/>
             </div>
         );
     },
     _checkMail() {
         if (!this.state.username) {
-            this.state.errors.username = '请输入邮箱';
+            this.state.errMsg = '请输入邮箱';
         } else if (!isMail(this.state.username)) {
-            this.state.errors.username = '邮箱格式不正确';
-        } else {
-            this.state.errors.username = null;
+            this.state.errMsg = '邮箱格式不正确';
         }
-        this.setState(this.state);
-        return !this.state.errors.username;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _checkPass() {
         if (!this.state.password) {
-            this.state.errors.password = '请输入密码';
-        } else {
-            this.state.errors.password = null;
+            this.state.errMsg = '请输入密码';
+        } else if (this.state.password.length < 6) {
+            this.state.errMsg = '密码不能少于6位';
         }
-        this.setState(this.state);
-        return !this.state.errors.password;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _getData() {
         return {
@@ -82,25 +81,28 @@ module.exports = React.createClass({
             password: md5(this.state.password)
         }
     },
+    _checkEnter(e) {
+        if (e.which == 13) {
+            this._login();
+        }
+    },
     _login() {
-        let ok = this._checkMail();
-        ok = this._checkPass() && ok;
-        if(!ok) return;
-        this.setState({
-            err: '',
-            loading: true
-        });
-        fetch('/api/user/login', {method: 'post', body: this._getData()})
-            .then(data => {
-                let next = this.props.location.state && this.props.location.state.nextPathname;
-                window._user = data.user;
-                browserHistory.replace(next ? next : '/index');
-            })
-            .catch(e => {
-                this.setState({
-                    loading: false,
-                    err: e.msg
-                });
+        if (this._checkMail() && this._checkPass()) {
+            this.setState({
+                loading: true
             });
+            fetch('/api/user/login', {method: 'post', body: this._getData()})
+                .then(data => {
+                    let next = this.props.location.state && this.props.location.state.nextPathname;
+                    window._user = data.user;
+                    browserHistory.replace(next ? next : '/index');
+                })
+                .catch(e => {
+                    this.setState({
+                        loading: false,
+                        err: e.msg
+                    });
+                });
+        }
     }
 });

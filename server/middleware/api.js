@@ -6,14 +6,19 @@ const _ = require('lodash');
 const User = require('../model/user');
 const Group = require('../model/group');
 const logger = require('../lib/logger');
+const BusinessError = require('../error/BusinessError');
 module.exports.errorToJson = function () {
     return function*(next) {
         if (this.request.url.startsWith('/api')) {
             try {
                 yield* next;
             } catch (e) {
-                this.body = {code: 500};
-                logger.error(e);
+                if (e instanceof BusinessError) {
+                    this.body = e;
+                } else {
+                    this.body = {code: 500};
+                    logger.error(e);
+                }
             } finally {
                 if (this.response.status == 404) {
                     this.response.status = 200;

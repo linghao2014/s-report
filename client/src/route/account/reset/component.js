@@ -2,7 +2,7 @@
  * 重置密码
  */
 import React from 'react';
-import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
+import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider, Snackbar, Dialog, FlatButton} from 'material-ui';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import {browserHistory} from 'react-router';
 import md5 from 'blueimp-md5';
@@ -14,6 +14,13 @@ module.exports = React.createClass({
         return {errors: {}};
     },
     render() {
+        const actions = [
+            <FlatButton
+                label="知道了"
+                primary={true}
+                onTouchTap={this._confirmSucc}
+            />
+        ];
         return (
             <div>
                 <AppBar
@@ -24,9 +31,8 @@ module.exports = React.createClass({
                         <TextField
                             name="password"
                             type="password"
-                            errorText={this.state.errors.password}
+                            onKeyPress={this._checkEnter}
                             onChange={evt=>this.setState({password: evt.target.value})}
-                            onBlur={this._checkPass}
                             fullWidth
                             underlineShow={false}
                             hintText="新密码"/>
@@ -34,8 +40,7 @@ module.exports = React.createClass({
                         <TextField
                             name="repeatPassword"
                             type="password"
-                            errorText={this.state.errors.password2}
-                            onBlur={this._checkPass2}
+                            onKeyPress={this._checkEnter}
                             onChange={evt=>this.setState({password2: evt.target.value})}
                             fullWidth
                             underlineShow={false}
@@ -49,52 +54,64 @@ module.exports = React.createClass({
                         fullWidth
                         label={this.state.loading ? '重置中...' : '重置'}/>
                 </div>
+                <Snackbar open={!!this.state.errMsg}
+                          message={this.state.errMsg || ''}
+                          autoHideDuration={2000}
+                          onRequestClose={e => this.setState({errMsg: ''})}/>
+                <Dialog
+                    title="提示"
+                    actions={actions}
+                    modal={true}
+                    open={!!this.state.succTip}
+                    onRequestClose={this._confirmSucc}>
+                    {this.state.succTip}
+                </Dialog>
             </div>
         );
     },
     _checkPass() {
         if (!this.state.password) {
-            this.state.errors.password = '请输入密码';
+            this.state.errMsg = '请输入密码';
         } else if (this.state.password.length < 6) {
-            this.state.errors.password = '密码长度不能少于6位';
-        } else {
-            this.state.errors.password = null;
+            this.state.errMsg = '密码长度不能少于6位';
         }
-        this.setState(this.state);
-        return !this.state.errors.password;
+        this.forceUpdate();
+        return !this.state.errMsg;
     },
     _checkPass2() {
         if (!this.state.password2) {
-            this.state.errors.password2 = '请再次确认密码';
+            this.state.errMsg = '请再次确认密码';
         } else if (this.state.password !== this.state.password2) {
-            this.state.errors.password2 = '密码输入不一致';
-        } else {
-            this.state.errors.password2 = null;
+            this.state.errMsg = '密码输入不一致';
         }
-        this.setState(this.state);
-        return !this.state.errors.password2;
+        this.forceUpdate();
+        return !this.state.errMsg;
+    },
+    _checkEnter(e) {
+        if (e.which == 13) {
+            this._reset();
+        }
     },
     _reset() {
-        let ok = this._checkPass();
-        ok = this._checkPass() && ok;
-        if (!ok) return;
+        if (!this._checkPass() || !this._checkPass2()) return;
         this.setState({
-            err: '',
             loading: true
         });
         fetch('/api/user/reset', {
             method: 'post',
             body: {password: md5(this.state.password), key: this.props.params.key}
         })
-            .then(data => {
-                alert('密码重置成功');
-                browserHistory.replace('/login');
+            .then(d => {
+                this.setState({succTip: '密码设置成功,请用新密码登录'});
             })
             .catch(e => {
                 this.setState({
                     loading: false,
-                    err: e.msg
+                    errMsg: e.msg
                 });
             });
+    },
+    _confirmSucc() {
+        this.setState({succTip: null}, () => browserHistory.replace('/account/login'));
     }
 });

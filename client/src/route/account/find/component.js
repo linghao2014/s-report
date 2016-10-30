@@ -2,7 +2,7 @@
  * 找回密码
  */
 import React from 'react';
-import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider} from 'material-ui';
+import {RaisedButton, AppBar, IconButton, TextField, Paper, Divider, Snackbar, Dialog, FlatButton} from 'material-ui';
 import {browserHistory} from 'react-router';
 import BackIcon from 'material-ui/svg-icons/navigation/chevron-left';
 import {isMail, fetch} from 'lib/util';
@@ -13,6 +13,13 @@ module.exports = React.createClass({
         return {};
     },
     render() {
+        const actions = [
+            <FlatButton
+                label="知道了"
+                primary={true}
+                onTouchTap={e => this.setState({succTip: null})}
+            />
+        ];
         return (
             <div>
                 <AppBar
@@ -21,15 +28,14 @@ module.exports = React.createClass({
                 <div className="login-form">
                     <div className="inputs">
                         <TextField
+                            onKeyPress={this._checkEnter}
                             onChange={e => this.setState({mail: e.target.value})}
-                            onBlur={this._checkMail}
                             name="account"
                             type="mail"
                             fullWidth
                             underlineShow={false}
                             hintText="注册邮箱"/>
                     </div>
-                    <p className="err">{this.state.err}&nbsp;</p>
                     <RaisedButton
                         disabled={this.state.loading}
                         onClick={this._find}
@@ -38,40 +44,54 @@ module.exports = React.createClass({
                         fullWidth
                         label={this.state.loading ? '找回中...' : '找回'}/>
                 </div>
+                <Snackbar open={!!this.state.errMsg}
+                          message={this.state.errMsg || ''}
+                          autoHideDuration={2000}
+                          onRequestClose={e => this.setState({errMsg: ''})}/>
+                <Dialog
+                    title="提示"
+                    actions={actions}
+                    modal={true}
+                    open={!!this.state.succTip}
+                    onRequestClose={e => this.setState({succTip: null})}>
+                    {this.state.succTip}
+                </Dialog>
             </div>
         );
     },
     _checkMail() {
         if (!this.state.mail) {
-            this.state.err = '请输入邮箱';
+            this.state.errMsg = '请输入注册邮箱';
         } else if (!isMail(this.state.mail)) {
-            this.state.err = '邮箱格式不正确';
-        } else {
-            this.state.err = null;
+            this.state.errMsg = '邮箱格式不正确';
         }
-        this.setState(this.state);
-        return !this.state.err;
+        this.forceUpdate();
+        return !this.state.errMsg;
+    },
+    _checkEnter(e) {
+        if (e.which == 13) {
+            this._find();
+        }
     },
     _find() {
         if (!this._checkMail()) return;
         this.setState({
-            loading: true,
-            err: ''
+            loading: true
         });
         fetch('/api/user/find', {
             method: 'post',
             body: {mail: this.state.mail}
         })
-            .then(data => {
+            .then(d => {
                 this.setState({
-                    loading: false
+                    loading: false,
+                    succTip: <p>密码重置邮件已发送至{this.state.mail}<br/>请尽快登录邮箱设置您的密码</p>
                 });
-                alert(`密码重置邮件已发送至${this.state.mail},请尽快登录邮箱重置您的密码`);
             })
             .catch(e => {
                 this.setState({
                     loading: false,
-                    err: e.msg
+                    errMsg: e.msg
                 });
             });
     }

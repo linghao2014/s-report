@@ -7,8 +7,6 @@ const format = require('date-format');
 const dayMs = 24 * 3600 * 1000;
 const schema = helper.schema({
     userId: String,
-    createTime: Date,
-    updateTime: Date,
     type: String,
     periodTime: Number,
     content: String,

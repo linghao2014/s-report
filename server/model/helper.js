@@ -9,7 +9,13 @@ const toOptions = {
 const defaultOptions = {
     id: true,
     toObject: toOptions,
-    toJSON: toOptions
+    toJSON: toOptions,
+    timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}
+};
+
+const defaultSchema = {
+    createTime: Date,
+    updateTime: Date
 };
 
 mongoose.Promise = global.Promise;
@@ -25,7 +31,8 @@ module.exports.schema = function (def, options) {
             });
         return rst;
     };
-    return new mongoose.Schema(def, Object.assign({}, defaultOptions, options));
+    return new mongoose.Schema(Object.assign({}, defaultSchema, def),
+        Object.assign({}, defaultOptions, options));
 
 };
 
