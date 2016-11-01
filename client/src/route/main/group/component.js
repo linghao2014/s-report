@@ -9,7 +9,7 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
 import _ from 'lodash';
-import {fetch} from 'lib/util';
+import {fetch, checkEnter} from 'lib/util';
 import popup from 'cpn/popup';
 import UserSearch from 'cpn/UserSearch';
 import {style} from './index.scss';
@@ -40,7 +40,6 @@ module.exports = React.createClass({
         let disableSave = !this.state.name || this.state.info.name == this.state.name;
         let actions = [
             <FlatButton
-                primary
                 label="取消"
                 onTouchTap={e => this.setState({showAdd: false})}/>,
             <FlatButton
@@ -57,6 +56,7 @@ module.exports = React.createClass({
                             <TextField
                                 name="name"
                                 value={this.state.name || ''}
+                                onKeyPress={checkEnter(this._saveInfo)}
                                 onChange={e => this.setState({name: e.target.value})}
                                 className="text"
                                 hintText="请输入名称"
@@ -118,9 +118,10 @@ module.exports = React.createClass({
                     actions={actions}
                     open={this.state.showAdd}>
                     <TextField
+                        autoFocus
                         hintText="请输入用户邮箱帐号"
-                        value={this.state.addMail || ''}
-                        onChange={e => this.setState({addMail: e.target.value})}
+                        onChange={e => this.state.addMail = e.target.value}
+                        onKeyPress={checkEnter(this._addMember)}
                         fullWidth={true}/>
                 </Dialog>
             </div>

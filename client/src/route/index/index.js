@@ -3,7 +3,7 @@ module.exports = {
     onEnter(nextState, replace) {
         if(_user.id) {
             if(_user.groupId) {
-                replace('/m/report');
+                replace('/m/report/my/list');
             } else {
                 replace('/m/guide');
             }

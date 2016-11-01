@@ -42,7 +42,6 @@ const Popup = React.createClass({
         if (this.state.type == 'alert' || this.state.type == 'confirm') {
             let actions = [
                 <FlatButton
-                    primary
                     label="取消"
                     onTouchTap={this._handleClose}/>,
                 <FlatButton

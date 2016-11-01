@@ -40,3 +40,11 @@ export function mustLogin(nextState, replace) {
         });
     }
 }
+
+export function checkEnter(cb) {
+    return function (e) {
+        if (e.which == 13) {
+            cb();
+        }
+    }
+}

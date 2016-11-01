@@ -8,7 +8,6 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../index.scss';
-import Edit from './edit';
 
 
 const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
@@ -51,16 +50,6 @@ module.exports = React.createClass({
                                     </ul>
                                 </div>)
                             }
-                            <div className="inner-item">
-                                <Avatar
-                                    className="avatar"
-                                    src={cover}/>
-                                <h3>李伟</h3>
-                                <ul>
-                                    <li>1. abc</li>
-                                    <li>2. def</li>
-                                </ul>
-                            </div>
                         </div>
                         <CardActions>
                             <FlatButton label="邮件发送"/>

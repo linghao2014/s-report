@@ -1,5 +1,5 @@
 /**
- * 组织api
+ * 组织管理api
  */
 'use strict';
 const _ = require('lodash');
@@ -9,6 +9,8 @@ const Group = require('../model/group');
 const logger = require('../lib/logger');
 const auth = require('../lib/auth');
 const util = require('../lib/util');
+const BusinessError = require('../error/BusinessError');
+const ErrCode = BusinessError.ErrCode;
 
 function* injectGroup(next) {
     let user = yield User.findById(this.state.userId).exec();
@@ -25,16 +27,16 @@ function* injectGroup(next) {
         }
     }
 }
-
+/**
+ * 新建组织
+ */
 router.post('/create', auth.mustLogin(), function* () {
-    let name = this.request.body.name;
+    let name = this.request.params.name;
     if (!name) {
-        this.body = {code: 400, msg: '组织名不能为空'};
-        return;
+        throw new BusinessError(ErrCode.ABSENCE_PARAM, '组织名不能为空');
     }
     let group = new Group({
         name: name,
-        createTime: Date.now(),
         members: [{userId: this.state.userId, admin: true}]
     });
     yield group.save();
@@ -46,7 +48,9 @@ router.post('/create', auth.mustLogin(), function* () {
         group: group
     };
 });
-
+/**
+ * 获取组织信息
+ */
 router.get('/get', auth.mustLogin(), injectGroup, function* () {
     let group = this.state.group;
     let ids = [];
@@ -66,85 +70,72 @@ router.get('/get', auth.mustLogin(), injectGroup, function* () {
         })
     };
 });
-
+/**
+ * 更新组织信息
+ */
 router.post('/update', auth.mustLogin(), injectGroup, function* () {
-    let name = this.request.body.name;
+    let name = this.request.params.name;
     let ret = {};
-    if (name) {
+    if (!name) {
+        throw new BusinessError(ErrCode.ABSENCE_PARAM, '组织名不能为空');
+    } else {
         let group = this.state.group;
         group.name = name;
         yield group.save();
         ret.code = 200;
-    } else {
-        ret.code = 400;
     }
     this.body = ret;
 });
-
+/**
+ * 添加组织成员
+ */
 router.post('/addMember', auth.mustLogin(), injectGroup, function* () {
-    let mail = this.request.body.mail;
-    let ret = {};
-    if (mail) {
-        let group = this.state.group;
-        let user = yield User.findOne({username: mail});
-        if (user) {
-            if (!user.groupId) {
-                user.groupId = group.id;
-                yield group.update({$push: {members: {userId: user.id, admin: false}}}).exec();
-                yield user.save();
-                ret.code = 200;
-                ret.user = user;
-            } else {
-                ret.code = 417;
-                ret.msg = '添加出错,该用户已选择组织';
-            }
-        } else {
-            ret.code = 416;
-            ret.msg = '用户不存在';
-        }
-    } else {
-        ret.code = 400;
-    }
-    this.body = ret;
+    let mail = this.request.params.mail;
+    if (!mail) throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    let group = this.state.group;
+    let user = yield User.findOne({username: mail});
+    if (!user) throw new BusinessError(416, '用户不存在');
+    if (user.groupId) throw new BusinessError(417, '添加出错,该用户已选择组织');
+    user.groupId = group.id;
+    yield group.update({$push: {members: {userId: user.id, admin: false}}}).exec();
+    yield user.save();
+    this.body = {
+        code: 200,
+        user: user
+    };
 });
-
+/**
+ * 删除组织成员
+ */
 router.post('/delMember', auth.mustLogin(), injectGroup, function* () {
-    let memberId = this.request.body.id;
-    let ret = {};
-    if (memberId) {
-        let group = this.state.group;
-        let user = yield User.findById(memberId);
-        yield group.update({$pull: {members: {userId: user.id}}}).exec();
-        if (user) {
-            user.groupId = null;
-            yield user.save();
-        }
-        ret.code = 200;
-    } else {
-        ret.code = 400;
+    let memberId = this.request.params.id;
+    if (!memberId) throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    let group = this.state.group;
+    let user = yield User.findById(memberId);
+    yield group.update({$pull: {members: {userId: user.id}}}).exec();
+    if (user) {
+        user.groupId = null;
+        yield user.save();
     }
-    this.body = ret;
+    this.body = {
+        code: 200
+    }
 });
-
+/**
+ * 更新组织成员角色
+ */
 router.post('/updateRole', auth.mustLogin(), injectGroup, function* () {
-    let userId = this.request.body.userId;
-    let admin = this.request.body.admin;
-    let ret = {};
-    if (userId && admin != null) {
-        let group = this.state.group;
-        let member = _.find(group.members, {userId: userId});
-        if (member) {
-            member.admin = admin;
-            yield group.save();
-            ret.code = 200;
-        } else {
-            ret.code = 418;
-            ret.msg = '用户不存在';
-        }
-    } else {
-        ret.code = 400;
+    let userId = this.request.params.userId;
+    let admin = this.request.params.admin;
+    if (!userId || admin == null) throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    let group = this.state.group;
+    let member = _.find(group.members, {userId: userId});
+    if (!member) throw new BusinessError(418, '用户不存在');
+    member.admin = admin;
+    yield group.save();
+    this.body = {
+        code: 200
     }
-    this.body = ret;
 });
 
 module.exports = router;

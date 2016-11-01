@@ -15,7 +15,6 @@ export default React.createClass({
     render() {
         let actions = [
             <FlatButton
-                primary
                 label="取消"
                 onTouchTap={this._handleClose}/>,
             <FlatButton
@@ -33,7 +32,7 @@ export default React.createClass({
                     fullWidth
                     autoFocus
                     onKeyPress={e => e.which == 13 && this._handleOk()}
-                    onChange={e => this.setState({name: e.target.value})}
+                    onChange={e => this.state.name = e.target.value}
                     hintText="组织名称"
                     name="name"/>
             </Dialog>

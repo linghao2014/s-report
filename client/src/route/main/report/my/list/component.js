@@ -2,6 +2,7 @@
  * 报告
  */
 import React from 'react';
+import {browserHistory} from 'react-router';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
@@ -72,7 +73,7 @@ module.exports = React.createClass({
         );
     },
     _create() {
-        this.refs.edit.toggle(true);
+        browserHistory.push('/m/report/my/edit');
     },
     _onAddOrUpdate(rp) {
         if (rp.id) {
