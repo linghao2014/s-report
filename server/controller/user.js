@@ -4,12 +4,14 @@
 'use strict';
 const router = require('koa-router')({prefix: '/user'});
 const User = require('../model/user');
+const Group = require('../model/group');
 const thunkify = require('thunkify');
 const logger = require('../lib/logger');
 const passportLocalMongoose = require('passport-local-mongoose');
 const auth = require('../lib/auth');
 const util = require('../lib/util');
 const BusinessError = require('../error/BusinessError');
+const _ = require('lodash');
 const ErrCode = BusinessError.ErrCode;
 
 /**
@@ -17,12 +19,20 @@ const ErrCode = BusinessError.ErrCode;
  */
 router.post('/login', function* () {
     let params = this.request.params;
-    let result = yield thunkify(auth.authenticate)(params.username, params.password);
-    if (result && result.id) {
-        auth.login(this, result);
+    let user = yield thunkify(auth.authenticate)(params.username, params.password);
+    if (!user) {
+        throw new BusinessError(414, '该帐号未注册');
+    }
+    if (user && user.id) {
+        user = user.toObject();
+        if (user.groupId) {
+            let group = yield Group.findById(user.groupId);
+            user.groupAdmin = _.findIndex(group.members, {userId: user.id, admin: true}) > -1;
+        }
+        auth.login(this, user);
         this.body = {
             code: 200,
-            user: result
+            user: user
         };
     } else {
         throw new BusinessError(407, '用户名或密码错误');

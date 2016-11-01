@@ -1,5 +1,5 @@
 module.exports = {
-    path: 'edit/:id',
+    path: 'list',
     getComponent(nextState, callback) {
         require.ensure([], function (require) {
             callback(null, require('./component'))

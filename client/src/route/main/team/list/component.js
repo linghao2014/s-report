@@ -11,7 +11,9 @@ import SetIcon from 'material-ui/svg-icons/action/settings';
 import _ from 'lodash';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
+import Empty from 'cpn/Empty';
 import {style} from './index.scss';
+import pubsub from 'vanilla-pubsub';
 
 const Teams = function (props) {
     return (
@@ -31,7 +33,7 @@ const Teams = function (props) {
                                         <IconButton onTouchTap={props.onDelete.bind(null, t)}>
                                             <DeleteIcon color="#666"/>
                                         </IconButton>
-                                        <IconButton onTouchTap={e => browserHistory.push('team/edit/' + t.id)}>
+                                        <IconButton onTouchTap={e => browserHistory.push('/m/team/edit/' + t.id)}>
                                             <SetIcon color="#666"/>
                                         </IconButton>
                                     </div>
@@ -58,6 +60,11 @@ module.exports = React.createClass({
         return {showCreate: false};
     },
     componentDidMount() {
+        let barConf = {
+            title: '小组',
+            iconElementRight: <IconButton onTouchTap={e => this.setState({showCreate: true})}><AddIcon/></IconButton>
+        };
+        pubsub.publish('config.appBar', barConf);
         fetch('/api/team/all')
             .then(d => {
                 let myTeams = [];
@@ -77,10 +84,6 @@ module.exports = React.createClass({
             });
     },
     render() {
-        let barConf = {
-            title: '群组',
-            iconElementRight: <IconButton onTouchTap={e => this.setState({showCreate: true})}><AddIcon/></IconButton>
-        };
         let actions = [
             <FlatButton
                 primary
@@ -93,20 +96,22 @@ module.exports = React.createClass({
                 onTouchTap={this._createTeam}/>
         ];
         return (
-            <div className={style} barConf={barConf}>
+            <div className={style}>
+                <Subheader>我所在的小组</Subheader>
                 {
-                    this.state.myTeams && this.state.myTeams.length &&
-                    [
-                        <Subheader key="0">我所在的小组</Subheader>,
-                        <Teams key="1" list={this.state.myTeams} onDelete={this._deleteTeam}/>
-                    ]
+                    this.state.myTeams && this.state.myTeams.length
+                        ?
+                        <Teams list={this.state.myTeams} onDelete={this._deleteTeam}/>
+                        :
+                        <Empty/>
                 }
+                <Subheader>其它小组</Subheader>
                 {
-                    this.state.otherTeams && this.state.otherTeams.length &&
-                    [
-                        <Subheader key="0">其它小组</Subheader>,
-                        <Teams key="1" list={this.state.otherTeams} onFollowChange={this._onFollowChange}/>
-                    ]
+                    this.state.otherTeams && this.state.otherTeams.length
+                        ?
+                        <Teams list={this.state.otherTeams} onFollowChange={this._onFollowChange}/>
+                        :
+                        <Empty/>
                 }
                 <Dialog
                     contentStyle={{maxWidth: '450px'}}
@@ -143,7 +148,7 @@ module.exports = React.createClass({
                     createName: false
                 });
                 popup.success('创建成功');
-                browserHistory.push('team/edit/' + d.group.id);
+                browserHistory.push('/m/team/edit/' + d.group.id);
             })
             .catch(e => {
                 popup.error(e.msg || '小组创建失败');

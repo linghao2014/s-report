@@ -13,12 +13,17 @@ import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import UserSearch from 'cpn/UserSearch';
 import {style} from './index.scss';
+import pubsub from 'vanilla-pubsub';
 
 module.exports = React.createClass({
     getInitialState() {
         return {showAdd: false};
     },
     componentDidMount() {
+        let barConf = {
+            title: '组织设置'
+        };
+        pubsub.publish('config.appBar', barConf);
         fetch('/api/group/get?id=' + _user.groupId)
             .then(data => {
                 this.setState({
@@ -32,9 +37,6 @@ module.exports = React.createClass({
             });
     },
     render() {
-        let barConf = {
-            title: '组织设置'
-        };
         let disableSave = !this.state.name || this.state.info.name == this.state.name;
         let actions = [
             <FlatButton
@@ -47,7 +49,7 @@ module.exports = React.createClass({
                 onTouchTap={this._addMember}/>
         ];
         return (
-            <div className={style} barConf={barConf}>
+            <div className={style}>
                 <div className="box">
                     <Card className="card">
                         <CardHeader title="基本信息" style={{paddingBottom: 0}}/>
@@ -147,21 +149,23 @@ module.exports = React.createClass({
             });
     },
     _delMember(m) {
-        if(m.id == _user.id) {
+        if (m.id == _user.id) {
             popup.error('不能删除自己');
             return;
         }
-        popup.confirm({msg: '确定删除?', onOk: () => {
-            fetch('/api/group/delMember', {method: 'post', body: {id: m.id}})
-                .then(data => {
-                    _.remove(this.state.members, {id: m.id});
-                    this.setState({members: this.state.members});
-                    popup.success('删除成功');
-                })
-                .catch(e => {
-                    popup.error(e.msg);
-                });
-        }});
+        popup.confirm({
+            msg: '确定删除?', onOk: () => {
+                fetch('/api/group/delMember', {method: 'post', body: {id: m.id}})
+                    .then(data => {
+                        _.remove(this.state.members, {id: m.id});
+                        this.setState({members: this.state.members});
+                        popup.success('删除成功');
+                    })
+                    .catch(e => {
+                        popup.error(e.msg);
+                    });
+            }
+        });
     },
     _updateRole(m, e) {
         let checked = e.target.checked;

@@ -14,7 +14,8 @@ import {style} from './index.scss';
 import pubsub from 'vanilla-pubsub';
 
 const SelectableList = MakeSelectable(List);
-const navList = ['/m/report/my/list', '/m/report/team', '/m/team', '/m/group'];
+const navList = ['/m/report/my', '/m/report/team', '/m/team', '/m/group'];
+const indexMap = {0: 'list', 2: 'list'};
 const innerDiv = {paddingLeft: 50};
 
 export default React.createClass({
@@ -86,8 +87,9 @@ export default React.createClass({
         );
     },
     _navTo(evt, index) {
+        let path = indexMap[index];
         this.setState({current: index});
-        browserHistory.push(navList[index]);
+        browserHistory.push(navList[index] + (path ? '/' + path : ''));
     },
     _logout() {
         this.setState({
@@ -99,7 +101,6 @@ export default React.createClass({
                 browserHistory.push('/index');
             })
             .catch(e => {
-                debugger
                 popup.error('退出失败');
                 this.setState({
                     loading: false

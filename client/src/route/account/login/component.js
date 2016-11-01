@@ -9,6 +9,7 @@ import md5 from 'blueimp-md5';
 import {isMail} from 'lib/util';
 import 'sass/login_form.scss';
 import {fetch} from 'lib/util';
+import pubsub from 'vanilla-pubsub';
 
 module.exports = React.createClass({
     getInitialState() {
@@ -95,12 +96,13 @@ module.exports = React.createClass({
                 .then(data => {
                     let next = this.props.location.state && this.props.location.state.nextPathname;
                     window._user = data.user;
+                    pubsub.publish('loginUser.change');
                     browserHistory.replace(next ? next : '/index');
                 })
                 .catch(e => {
                     this.setState({
                         loading: false,
-                        err: e.msg
+                        errMsg: e.msg
                     });
                 });
         }
