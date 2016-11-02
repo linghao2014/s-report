@@ -13,14 +13,17 @@ import UserSearch from 'cpn/UserSearch';
 import popup from 'cpn/popup';
 import {fetch} from 'lib/util';
 import {style} from './index.scss';
-
-const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=50y50';
+import pubsub from 'vanilla-pubsub';
 
 module.exports = React.createClass({
     getInitialState() {
         return {info: {}, members: [], follows: []};
     },
     componentDidMount() {
+        let barConf = {
+            title: '小组设置'
+        };
+        pubsub.publish('config.appBar', barConf);
         fetch('/api/team/get?teamId=' + this.props.params.id)
             .then(d => {
                 this.setState({

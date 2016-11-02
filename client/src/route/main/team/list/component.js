@@ -1,5 +1,5 @@
 /**
- * 群组
+ * 小组
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
@@ -9,7 +9,7 @@ import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
 import _ from 'lodash';
-import {fetch} from 'lib/util';
+import {fetch, checkEnter} from 'lib/util';
 import popup from 'cpn/popup';
 import Empty from 'cpn/Empty';
 import {style} from './index.scss';
@@ -86,11 +86,9 @@ module.exports = React.createClass({
     render() {
         let actions = [
             <FlatButton
-                primary
                 label="取消"
                 onTouchTap={e => this.setState({showCreate: false})}/>,
             <FlatButton
-                disabled={!this.state.createName}
                 primary
                 label="确定"
                 onTouchTap={this._createTeam}/>
@@ -119,9 +117,10 @@ module.exports = React.createClass({
                     actions={actions}
                     open={this.state.showCreate}>
                     <TextField
+                        autoFocus
                         hintText="组名"
-                        value={this.state.createName || ''}
-                        onChange={e => this.setState({createName: e.target.value})}
+                        onKeyPress={checkEnter(this._createTeam)}
+                        onChange={e => this.state.createName = e.target.value}
                         fullWidth={true}/>
                     <Toggle
                         toggle={!!this.state.createCanBeFollow}
@@ -134,6 +133,10 @@ module.exports = React.createClass({
         );
     },
     _createTeam() {
+        if (!this.state.createName) {
+            popup.error('小组名不能为空');
+            return;
+        }
         fetch('/api/team/create', {
             method: 'post',
             body: {

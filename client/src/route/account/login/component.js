@@ -24,6 +24,7 @@ module.exports = React.createClass({
                 <div className="login-form">
                     <div className="inputs">
                         <TextField
+                            autoFocus
                             onKeyPress={this._checkEnter}
                             onChange={evt=>this.setState({username: evt.target.value})}
                             name="username"

@@ -7,8 +7,8 @@ import _ from 'lodash';
 import {fetch} from 'lib/util';
 
 const sourceConf = {text: 'nickname', value: 'id'};
-const wrapStyle = {display: 'flex', flexWrap: 'no-wrap'};
-const chipStyle = {marginRight: '10px'};
+const wrapStyle = {display: 'flex', flexWrap: 'wrap'};
+const chipStyle = {marginRight: '10px', marginBottom: '6px'};
 
 export default React.createClass({
     getInitialState() {
@@ -17,7 +17,6 @@ export default React.createClass({
     render() {
         let actions = [
             <FlatButton
-                primary
                 label="取消"
                 onTouchTap={this._handleClose}/>,
             <FlatButton
