@@ -2,6 +2,23 @@
     .item {
         margin: 20px;
         line-height: 1.8em;
+        .content {
+            color: #555;
+            h2 {
+                font-size: 1.5em;
+                line-height: 1.5em;
+            }
+            h3 {
+                font-size: 1.17em;
+                line-height: 1.5em;
+            }
+            ol, ul {
+                padding-left: 30px;
+            }
+            li {
+                list-style: inherit;
+            }
+        }
         .team {
             margin: 0 16px;
         }
@@ -28,15 +45,6 @@
             & > * {
                 margin-left: 10px;
             }
-        }
-    }
-}
-:local(.edit) {
-    .select{
-        display: flex;
-        justify-content: space-between;
-        & > * {
-            width: calc(50% - 10px) !important;
         }
     }
 }

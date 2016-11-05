@@ -17,7 +17,7 @@ module.exports = React.createClass({
     },
     componentDidMount() {
         let barConf = {
-            title: '报告',
+            title: '我的简报',
             iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
@@ -44,13 +44,14 @@ module.exports = React.createClass({
                             title={x.periodDesc}
                             subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
                         <CardText>
-                            {
-                                x.content
-                            }
+                            <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
                         </CardText>
                         <CardActions>
-                            <FlatButton label="编辑" onClick={this._onEdit.bind(this, x)}/>
-                            <FlatButton label="删除" onClick={this._delete.bind(this, x)}/>
+                            <FlatButton label="删除"
+                                        onClick={this._delete.bind(this, x)}/>
+                            <FlatButton label="编辑"
+                                        disabled={x.toTeam && !!x.toTeam.teamName}
+                                        onClick={this._onEdit.bind(this, x)}/>
                             <FlatButton label="发送"
                                         disabled={x.toTeam && !!x.toTeam.teamName}
                                         onClick={this._onSend.bind(this, x)}/>
@@ -132,7 +133,7 @@ module.exports = React.createClass({
         this.setState({anchorEl: e.currentTarget, currentRp: rp});
     },
     _onEdit(rp) {
-        this.refs.edit.edit(rp);
+        browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});
     },
     _sendToTeam(e, teamId) {
         let reportId = this.state.currentRp.id;

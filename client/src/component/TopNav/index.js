@@ -57,7 +57,7 @@ export default React.createClass({
                         value={-1}
                         primaryTogglesNestedList
                         initiallyOpen
-                        primaryText="报告"
+                        primaryText="简报"
                         leftIcon={<DescIcn/>}
                         innerDivStyle={innerDiv}
                         nestedItems={[
