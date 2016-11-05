@@ -28,14 +28,15 @@
             .avatar {
                 float: left;
                 margin-right: 16px;
-                margin-bottom: 10px;
             }
-            h3 {
+            .name {
                 line-height: 40px;
+                font-weight: bold;
+                font-size: 14px;
             }
-            ul {
-                overflow: auto;
-                margin-bottom: 10px;
+            .content {
+                clear: both;
+                padding: 15px 0;
             }
         }
         .not {

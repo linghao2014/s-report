@@ -2,7 +2,7 @@
  * 顶级导航
  */
 import React from 'react';
-import {Drawer, List, MakeSelectable, ListItem, RaisedButton, Avatar} from 'material-ui';
+import {Drawer, List, MakeSelectable, ListItem, RaisedButton} from 'material-ui';
 import DescIcn from 'material-ui/svg-icons/action/description';
 import TeamIcn from 'material-ui/svg-icons/action/supervisor-account';
 import AdminIcn from 'material-ui/svg-icons/action/verified-user';
@@ -12,6 +12,7 @@ import popup from 'cpn/popup';
 import {fetch} from 'lib/util';
 import {style} from './index.scss';
 import pubsub from 'vanilla-pubsub';
+import Avatar from 'cpn/Avatar';
 
 const SelectableList = MakeSelectable(List);
 const navList = ['/m/report/my', '/m/report/team', '/m/team', '/m/group'];
@@ -45,7 +46,8 @@ export default React.createClass({
                 <div className="user">
                     <a href="#">
                         <Avatar
-                            className="avatar">{this.state.loginUser.nickname.charAt(this.state.loginUser.nickname.length - 1)}</Avatar>
+                            user={this.state.loginUser}
+                            className="avatar"/>
                         {this.state.loginUser.nickname}
                     </a>
                 </div>

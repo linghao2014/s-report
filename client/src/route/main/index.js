@@ -46,6 +46,7 @@ const Cpn = React.createClass({
                     open={this.state.open}
                     forceOpen={this.state.forceOpen}/>
                 <div
+                    id="main-container"
                     className={this.props.className}
                     style={{marginLeft: this.state.forceOpen ? '256px' : 0, height: 'calc(100% - 64px)', overflowY: 'auto'}}>
                     {this.props.children}

@@ -10,6 +10,7 @@ import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
+import ListView from 'cpn/ListView';
 
 module.exports = React.createClass({
     getInitialState() {
@@ -21,12 +22,6 @@ module.exports = React.createClass({
             iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
-        fetch('/api/report/my')
-            .then(d => {
-                this.setState({
-                    rps: d.list
-                });
-            });
         fetch('/api/team/myList')
             .then(d => {
                 this.setState({
@@ -35,29 +30,28 @@ module.exports = React.createClass({
             })
     },
     render() {
+        let itemRender = (x, i) => <Card key={i} className="item">
+            <CardHeader
+                className="header"
+                title={x.periodDesc}
+                subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
+            <CardText>
+                <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
+            </CardText>
+            <CardActions>
+                <FlatButton label="删除"
+                            onClick={this._delete.bind(this, x)}/>
+                <FlatButton label="编辑"
+                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            onClick={this._onEdit.bind(this, x)}/>
+                <FlatButton label="发送"
+                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            onClick={this._onSend.bind(this, x)}/>
+            </CardActions>
+        </Card>;
         return (
             <div className={style}>
-                {
-                    this.state.rps.map(x => <Card key={x.id} className="item">
-                        <CardHeader
-                            className="header"
-                            title={x.periodDesc}
-                            subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
-                        <CardText>
-                            <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
-                        </CardText>
-                        <CardActions>
-                            <FlatButton label="删除"
-                                        onClick={this._delete.bind(this, x)}/>
-                            <FlatButton label="编辑"
-                                        disabled={x.toTeam && !!x.toTeam.teamName}
-                                        onClick={this._onEdit.bind(this, x)}/>
-                            <FlatButton label="发送"
-                                        disabled={x.toTeam && !!x.toTeam.teamName}
-                                        onClick={this._onSend.bind(this, x)}/>
-                        </CardActions>
-                    </Card>)
-                }
+                <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
@@ -72,6 +66,9 @@ module.exports = React.createClass({
                 </Popover>
             </div>
         );
+    },
+    _loadList(limit, offset) {
+        return fetch(`/api/report/my?limit=${limit}&offset=${offset}`);
     },
     _create() {
         browserHistory.push('/m/report/my/edit');
@@ -118,8 +115,7 @@ module.exports = React.createClass({
             onOk: () => {
                 fetch('/api/report/delete?id=' + rp.id)
                     .then(d => {
-                        _.remove(this.state.rps, {id: rp.id});
-                        this.forceUpdate();
+                        this.refs.listView.deleteItem(rp.id);
                         popup.success('删除成功');
                     })
                     .catch(e => {
@@ -144,8 +140,7 @@ module.exports = React.createClass({
                 teamId: teamId
             }
         }).then(d => {
-                _.find(this.state.rps, {id: reportId}).toTeam = d.toTeam;
-                this.forceUpdate();
+                this.refs.listView.updateItem(reportId, {toTeam: d.toTeam});
                 popup.success('发送成功');
             })
             .catch(e => {

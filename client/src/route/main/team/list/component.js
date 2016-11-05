@@ -27,7 +27,7 @@ const Teams = function (props) {
                     </div>
                     {
                         (()=> {
-                            if (t.admin) {
+                            if (t.my) {
                                 return (
                                     <div className="ops">
                                         <IconButton onTouchTap={props.onDelete.bind(null, t)}>
@@ -70,7 +70,7 @@ module.exports = React.createClass({
                 let myTeams = [];
                 let otherTeams = [];
                 d.teams.forEach(t => {
-                    if (t.admin) {
+                    if (t.my) {
                         myTeams.push(t);
                     } else {
                         otherTeams.push(t);

@@ -3,69 +3,69 @@
  */
 import React from 'react';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
-    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
+    CardText, List, ListItem, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../index.scss';
-
-
-const cover = 'http://p3.music.126.net/O__ztFTUL84GOTUFLY3u7g==/1391981724404463.jpg?param=200y200';
+import pubsub from 'vanilla-pubsub';
+import ListView from 'cpn/ListView';
+import Avatar from 'cpn/Avatar';
 
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: []};
+        return {rps: [], teamMap: {}, userMap: {}};
     },
     componentDidMount() {
-        fetch('/api/report/team')
-            .then(d => {
-                this.setState({
-                    rps: d.list,
-                    teamMap: d.teamMap,
-                    userMap: d.userMap
-                });
-            });
+        let barConf = {
+            title: '小组简报'
+        };
+        pubsub.publish('config.appBar', barConf);
     },
     render() {
-        let barConf = {
-            title: '报告',
-            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
-        };
-        return (
-            <div className={style}>
+        let itemRender = x => <Card key={x.id} className="item">
+            <CardHeader
+                title={this.state.teamMap[x.teamId].name}
+                subtitle={x.periodDesc}/>
+            <div className="team">
                 {
-                    this.state.rps.map(x => <Card key={x.id} className="item">
-                        <CardHeader
-                            title={this.state.teamMap[x.teamId].name}
-                            subtitle={x.periodDesc}/>
-                        <div className="team">
-                            {
-                                x.list.map(y => <div key={y._id} className="inner-item">
-                                    <Avatar
-                                        className="avatar"
-                                        src={cover}/>
-                                    <h3>{this.state.userMap[y.userId].nickname}</h3>
-                                    <ul>
-                                        <li>{y.content}</li>
-                                    </ul>
-                                </div>)
-                            }
-                        </div>
-                        <CardActions>
-                            <FlatButton label="邮件发送"/>
-                            <div className="not">
-                                <label>暂未发送:</label>
-                                <Avatar
-                                    size={30}
-                                    src={cover}/>
-                                <Avatar
-                                    size={30}
-                                    src={cover}/>
-                            </div>
-                        </CardActions>
-                    </Card>)
+                    x.list.map(y => <div key={y._id} className="inner-item">
+                        <Avatar
+                            user={this.state.userMap[y.userId]}
+                            className="avatar"/>
+                        <h3 className="name">{this.state.userMap[y.userId].nickname}</h3>
+                        <div className="content" dangerouslySetInnerHTML={{__html: y.content}}></div>
+                    </div>)
                 }
             </div>
+            <CardActions>
+                <FlatButton label="邮件抄送"/>
+                {
+                    x.notSend && x.notSend.length
+                        ?
+                        <div className="not">
+                            <label>暂未收到:</label>
+                            {x.notSend.map(uid => <Avatar key={uid} size={30} user={this.state.userMap[uid]}/>)}
+                        </div>
+                        :
+                        null
+                }
+            </CardActions>
+        </Card>;
+        return (
+            <div className={style}>
+                <ListView loadList={this._loadList} itemRender={itemRender}/>
+            </div>
         );
+    },
+    _loadList(limit, offset) {
+        return fetch(`/api/report/team?limit=${limit}&offset=${offset}`)
+            .then(d => {
+                Object.assign(this.state.teamMap, d.teamMap);
+                Object.assign(this.state.userMap, d.userMap);
+                return {
+                    list: d.list
+                };
+            });
     }
 });
