@@ -5,8 +5,7 @@ import React from 'react';
 import {CircularProgress} from 'material-ui';
 import Empty from 'cpn/Empty';
 import _ from 'lodash';
-
-const prgStyle = {display: 'block', margin: '0 auto'};
+import scss from './index.scss';
 
 export default React.createClass({
     getInitialState() {
@@ -17,7 +16,7 @@ export default React.createClass({
         document.getElementById('main-container').onscroll = this._checkScroll;
     },
     render() {
-        return (<div>
+        return (<div className={scss.index}>
             {this.state.list.map(this.props.itemRender)}
             {this._renderStatus()}
         </div>);
@@ -25,7 +24,7 @@ export default React.createClass({
     _renderStatus() {
         switch (this.state.status) {
             case 'loading':
-                return <CircularProgress style={prgStyle}/>;
+                return <CircularProgress className="loading"/>;
             case 'empty':
                 return <Empty/>;
             case 'error':
@@ -77,7 +76,7 @@ export default React.createClass({
         let index = _.findIndex(this.state.list, {id: id});
         if (index >= 0) {
             this.state.list.splice(index, 1);
-            if(!this.state.list.length) {
+            if (!this.state.list.length) {
                 this.state.status = 'empty';
             }
             this.forceUpdate();
