@@ -23,11 +23,12 @@ module.exports = React.createClass({
         pubsub.publish('config.appBar', barConf);
     },
     render() {
-        let itemRender = x => <Card key={x.id} className="item">
+        let itemRender = x => <Card initiallyExpanded key={x.id} className="item">
             <CardHeader
+                showExpandableButton
                 title={this.state.teamMap[x.teamId].name}
                 subtitle={x.periodDesc}/>
-            <div className="team">
+            <CardText expandable className="team">
                 {
                     x.list.map(y => <div key={y._id} className="inner-item">
                         <Avatar
@@ -37,7 +38,7 @@ module.exports = React.createClass({
                         <div className="content" dangerouslySetInnerHTML={{__html: y.content}}></div>
                     </div>)
                 }
-            </div>
+            </CardText>
             <CardActions>
                 <FlatButton label="邮件抄送"/>
                 {

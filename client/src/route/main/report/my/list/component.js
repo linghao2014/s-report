@@ -30,12 +30,13 @@ module.exports = React.createClass({
             })
     },
     render() {
-        let itemRender = (x, i) => <Card key={i} className="item">
+        let itemRender = (x, i) => <Card initiallyExpanded key={i} className="item">
             <CardHeader
+                showExpandableButton
                 className="header"
                 title={x.periodDesc}
                 subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
-            <CardText>
+            <CardText expandable>
                 <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
             </CardText>
             <CardActions>

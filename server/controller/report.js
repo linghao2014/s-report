@@ -70,15 +70,19 @@ router.get('/my', auth.mustLogin(), function* () {
 router.get('/team', auth.mustLogin(), function* () {
     let params = this.request.params;
     let userId = this.state.userId;
+    // 我所在的小组
     let teams = yield Team.find({members: {$elemMatch: {userId: userId}}}).exec();
+    // 我关注的小组
     let followTeams = yield Team.find({follows: {$elemMatch: {userId: userId}}}).exec();
     let teamMap = {};
     let userMap = {};
     let teamIds = [];
+    // 建立所有小组的k-v查询,以后面使用
     teams.concat(followTeams).forEach(t => {
         teamMap[t.id] = t;
         teamIds.push(t.id);
     });
+    // 查找小组日报
     let list = yield TeamReport.find({teamId: {$in: teamIds}})
         .sort({createTime: -1})
         .skip(parseInt(params.offset) || 0)
@@ -89,7 +93,8 @@ router.get('/team', auth.mustLogin(), function* () {
         let notSend = team.members.map(u => u.userId);
         l.list.forEach(r => {
             userMap[r.userId] = true;
-            let index = _.findIndex(r.userId);
+            // 将已发送的从not send里剔除
+            let index = notSend.indexOf(r.userId);
             if (index >= 0) {
                 notSend.splice(index, 1);
             }
