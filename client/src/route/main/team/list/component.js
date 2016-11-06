@@ -28,7 +28,7 @@ const Teams = function (props) {
                     {
                         (()=> {
                             if (t.my) {
-                                return (
+                                return t.admin ? (
                                     <div className="ops">
                                         <IconButton onTouchTap={props.onDelete.bind(null, t)}>
                                             <DeleteIcon color="#666"/>
@@ -37,7 +37,7 @@ const Teams = function (props) {
                                             <SetIcon color="#666"/>
                                         </IconButton>
                                     </div>
-                                );
+                                ) : null;
                             } else {
                                 return <FlatButton
                                     onClick={props.onFollowChange.bind(null, t)}

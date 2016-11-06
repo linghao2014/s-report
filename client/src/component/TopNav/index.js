@@ -18,6 +18,7 @@ const SelectableList = MakeSelectable(List);
 const navList = ['/m/report/my', '/m/report/team', '/m/team', '/m/group'];
 const indexMap = {0: 'list', 2: 'list'};
 const innerDiv = {paddingLeft: 50};
+const nestStyle = {color: '#555', fontSize: '14px'};
 
 export default React.createClass({
     getInitialState() {
@@ -64,11 +65,13 @@ export default React.createClass({
                         innerDivStyle={innerDiv}
                         nestedItems={[
                         <ListItem
-                          value={0}
-                          primaryText="我的"/>,
+                            style={nestStyle}
+                            value={0}
+                            primaryText="我的简报"/>,
                         <ListItem
-                          value={1}
-                          primaryText="小组"/>
+                            style={nestStyle}
+                            value={1}
+                            primaryText="小组简报"/>
                     ]}/>
                     <ListItem
                         value={2}

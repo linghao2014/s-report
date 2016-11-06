@@ -19,15 +19,15 @@ const schema = helper.schema({
 schema.virtual('periodDesc').get(function () {
     let time = new Date(this.periodTime);
     if (this.type == 'day') {
-        return `${format('yyyy-MM-dd', time)} 日报`;
+        return `${format('yyyy.MM.dd', time)} 日报`;
     } else if (this.type == 'week') {
         let day = time.getDay();
         let normalDay = (!day ? 7 : day);
         let beg = new Date(time.getTime() - dayMs * (normalDay - 1));
         let end = new Date(time.getTime() + dayMs * (7 - normalDay));
-        return `${format('yyyy-MM-dd', beg)}~${format('yyyy-MM-dd', end)} 周报`;
+        return `${format('yyyy.MM.dd', beg)}~${format('yyyy.MM.dd', end)} 周报`;
     } else {
-        return `${format('yyyy-MM', time)} 月报`;
+        return `${format('yyyy.MM', time)} 月报`;
     }
 });
 

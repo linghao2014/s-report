@@ -183,6 +183,7 @@ router.get('/all', auth.mustLogin(), function*() {
             obj.memberSize = team.members.length;
             obj.followSize = team.follows.length;
             obj.admin = !!_.find(team.members, {userId: user.id, admin: true});
+            obj.my = obj.admin || !!_.find(team.members, {userId: user.id});
             obj.followed = team.canBeFollow && !!_.find(team.follows, {userId: user.id});
             return obj;
         })
@@ -193,7 +194,7 @@ router.get('/all', auth.mustLogin(), function*() {
  */
 router.get('/follow', auth.mustLogin(), function*() {
     let params = this.request.params;
-    if (!this.params.teamId || params.follow == null) {
+    if (!params.teamId || params.follow == null) {
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
     let team = yield Team.findById(params.teamId).exec();

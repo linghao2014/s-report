@@ -77,6 +77,9 @@ export default React.createClass({
         let index = _.findIndex(this.state.list, {id: id});
         if (index >= 0) {
             this.state.list.splice(index, 1);
+            if(!this.state.list.length) {
+                this.state.status = 'empty';
+            }
             this.forceUpdate();
         }
     }

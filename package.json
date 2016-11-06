@@ -31,6 +31,7 @@
     "gulp-ejs": "2.1.2",
     "gulp-rename": "1.2.2",
     "gulp-util": "3.0.7",
+    "intl": "^1.2.5",
     "koa": "^1.2.1",
     "koa-bodyparser": "^2.2.0",
     "koa-ejs": "^3.0.0",

@@ -6,7 +6,6 @@ let helper = require('./helper');
 let schema = helper.schema({
     name: String,
     groupId: String,
-    createTime: Number,
     mails: String,
     canBeFollow: Boolean,
     members: [{userId: String, admin: Boolean}],

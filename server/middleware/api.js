@@ -31,12 +31,15 @@ module.exports.errorToJson = function () {
         } else {
             if (this.state.userId) {
                 var user = yield User.findById(this.state.userId).exec();
-                user = user.toObject();
-                if (user.groupId) {
-                    let group = yield Group.findById(user.groupId);
-                    user.groupAdmin = _.findIndex(group.members, {userId: user.id, admin: true}) > -1;
+                try {
+                    user = user.toObject();
+                    if (user.groupId) {
+                        let group = yield Group.findById(user.groupId);
+                        user.groupAdmin = _.findIndex(group.members, {userId: user.id, admin: true}) > -1;
+                    }
+                } catch(e) {
+                    //ignore
                 }
-
             }
             yield this.render('index', {user: JSON.stringify(user || {})});
         }
