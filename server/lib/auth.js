@@ -22,7 +22,7 @@ module.exports.login = function (ctx, user) {
 
 module.exports.mustLogin = function () {
     return function* (next) {
-        if (this.state.userId) {
+        if (this.state.loginUser) {
             yield next;
         } else {
             this.body = {
@@ -39,6 +39,7 @@ module.exports.resolveUser = function () {
         let security = key && JSON.parse(util.decrypt(key));
         if (security && security.expires > Date.now()) {
             this.state.userId = security.userId;
+            this.state.loginUser = yield User.findById(security.userId);
         }
         yield next;
     }

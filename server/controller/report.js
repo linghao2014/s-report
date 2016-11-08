@@ -5,13 +5,13 @@
 const _ = require('lodash');
 const router = require('koa-router')({prefix: '/report'});
 const User = require('../model/user');
-const Group = require('../model/group');
 const Team = require('../model/team');
 const Report = require('../model/report');
 const TeamReport = require('../model/teamReport');
 const logger = require('../lib/logger');
 const auth = require('../lib/auth');
 const util = require('../lib/util');
+const config = require('../config');
 const BusinessError = require('../error/BusinessError');
 const ErrCode = BusinessError.ErrCode;
 /**
@@ -87,10 +87,11 @@ router.get('/team', auth.mustLogin(), function* () {
         .sort({createTime: -1})
         .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
-    list = list.map(x => x.toObject());
+    list = list.filter(x => x.list && x.list.length).map(x => x.toObject());
     list.forEach(l => {
         let team = teamMap[l.teamId];
         let notSend = team.members.map(u => u.userId);
+        l.admin = !!_.find(team.members, {userId: userId, admin: true});
         l.list.forEach(r => {
             userMap[r.userId] = true;
             // 将已发送的从not send里剔除
@@ -173,6 +174,36 @@ router.post('/send', auth.mustLogin(), function* () {
             toTeam: rp.toTeam
         };
     }
+});
+/**
+ * 将小组简报邮件抄送
+ */
+router.get('/sendMail', auth.mustLogin(), function *() {
+    let params = this.request.params;
+    if (!params.teamReportId) throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    let teamReport = yield TeamReport.findById(params.teamReportId);
+    if (!teamReport) throw new BusinessError(ErrCode.NOT_FIND);
+    if (!teamReport.list || !teamReport.list.length) throw new BusinessError(416, '暂无简报');
+    let team = yield Team.findById(teamReport.teamId);
+    if (!team) throw new BusinessError(417, '小组不存在');
+    if (!_.find(team.members, {admin: true, userId: this.state.userId})) {
+        throw new BusinessError(409, '无操作权限');
+    }
+    let userIds = teamReport.list.map(x => x.userId);
+    let users = yield User.find({id: {$in: userIds}}).exec();
+    users = users.map(u => u.toObject());
+    let list = teamReport.list.map(x => x.toObject());
+    list.forEach(x => {
+        x.user = _.find(users, {id: x.userId}) || {};
+    });
+    let cc = users.map(x => x.workMail).concat(team.mails.split(/(,|;)/)).filter(x => !!x);
+    let html = yield this.render('mail', {list: list, writeResp: false});
+    util.sendMail({
+        from: `"${this.state.loginUser.nickname}" <${config.mail.auth.user}>`,
+        cc: cc.join(','),
+        html: html
+    });
+    this.body = {code: 200};
 });
 
 module.exports = router;

@@ -23,7 +23,7 @@ module.exports = React.createClass({
         pubsub.publish('config.appBar', barConf);
     },
     render() {
-        let itemRender = x => <Card initiallyExpanded key={x.id} className="item">
+        let itemRender = (x, i) => <Card initiallyExpanded key={i} className="item">
             <CardHeader
                 showExpandableButton
                 title={this.state.teamMap[x.teamId].name}
@@ -40,7 +40,7 @@ module.exports = React.createClass({
                 }
             </CardText>
             <CardActions>
-                <FlatButton label="邮件抄送"/>
+                <FlatButton onTouchTap={this._sendMail.bind(this, x.id)} disabled={!x.admin} primary label="邮件抄送"/>
                 {
                     x.notSend && x.notSend.length
                         ?
@@ -67,6 +67,12 @@ module.exports = React.createClass({
                 return {
                     list: d.list
                 };
+            });
+    },
+    _sendMail(teamReportId) {
+        return fetch(`/api/report/sendMail?teamReportId=${teamReportId}`)
+            .then(d => {
+                alert('发送成功');
             });
     }
 });
