@@ -8,9 +8,10 @@ export default React.createClass({
     render() {
         let {avatarUrl, nickname} = this.props.user;
         return (<Avatar
+            style={this.props.style}
             size={this.props.size}
             className={this.props.className}>
-            {nickname.charAt(nickname.length - 1)}
+            {nickname ? nickname.charAt(nickname.length - 1) : ''}
         </Avatar>);
     }
 });

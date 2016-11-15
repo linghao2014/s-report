@@ -83,6 +83,7 @@ module.exports = {
         require('./guide'),
         require('./group'),
         require('./report'),
-        require('./team')
+        require('./team'),
+        require('./profile')
     ]
 };

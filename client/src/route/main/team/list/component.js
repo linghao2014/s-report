@@ -4,7 +4,7 @@
 import React from 'react';
 import {browserHistory} from 'react-router';
 import {FlatButton, IconButton, ListItem, Avatar, Subheader, Dialog,
-    TextField, Toggle} from 'material-ui';
+    TextField, Toggle, CircularProgress} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import SetIcon from 'material-ui/svg-icons/action/settings';
@@ -65,6 +65,7 @@ module.exports = React.createClass({
             iconElementRight: <IconButton onTouchTap={e => this.setState({showCreate: true})}><AddIcon/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
+        this.setState({fetching: true});
         fetch('/api/team/all')
             .then(d => {
                 let myTeams = [];
@@ -78,6 +79,7 @@ module.exports = React.createClass({
 
                 });
                 this.setState({
+                    fetching: false,
                     myTeams: myTeams,
                     otherTeams: otherTeams
                 });
@@ -95,21 +97,29 @@ module.exports = React.createClass({
         ];
         return (
             <div className={style}>
-                <Subheader>我所在的小组</Subheader>
                 {
-                    this.state.myTeams && this.state.myTeams.length
+                    this.state.fetching
                         ?
-                        <Teams list={this.state.myTeams} onDelete={this._deleteTeam}/>
+                        <CircularProgress style={{display: 'block', margin: '10px auto'}}/>
                         :
-                        <Empty/>
-                }
-                <Subheader>其它小组</Subheader>
-                {
-                    this.state.otherTeams && this.state.otherTeams.length
-                        ?
-                        <Teams list={this.state.otherTeams} onFollowChange={this._onFollowChange}/>
-                        :
-                        <Empty/>
+                        <div>
+                            <Subheader>我所在的小组</Subheader>
+                            {
+                                this.state.myTeams && this.state.myTeams.length
+                                    ?
+                                    <Teams list={this.state.myTeams} onDelete={this._deleteTeam}/>
+                                    :
+                                    <Empty/>
+                            }
+                            <Subheader>其它小组</Subheader>
+                            {
+                                this.state.otherTeams && this.state.otherTeams.length
+                                    ?
+                                    <Teams list={this.state.otherTeams} onFollowChange={this._onFollowChange}/>
+                                    :
+                                    <Empty/>
+                            }
+                        </div>
                 }
                 <Dialog
                     contentStyle={{maxWidth: '450px'}}

@@ -2,6 +2,7 @@
  * 顶级导航
  */
 import React from 'react';
+import {Link} from 'react-router';
 import {Drawer, List, MakeSelectable, ListItem, RaisedButton} from 'material-ui';
 import DescIcn from 'material-ui/svg-icons/action/description';
 import TeamIcn from 'material-ui/svg-icons/action/supervisor-account';
@@ -45,12 +46,12 @@ export default React.createClass({
                 onRequestChange={this.props.onRequestChange}>
                 <h1>简报</h1>
                 <div className="user">
-                    <a href="#">
+                    <Link to="/m/profile">
                         <Avatar
                             user={this.state.loginUser}
                             className="avatar"/>
                         {this.state.loginUser.nickname}
-                    </a>
+                    </Link>
                 </div>
                 <SelectableList
                     style={{display: this.state.loginUser.groupId ? 'block': 'none'}}

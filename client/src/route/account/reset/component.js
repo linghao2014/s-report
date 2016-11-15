@@ -18,8 +18,7 @@ module.exports = React.createClass({
             <FlatButton
                 label="知道了"
                 primary={true}
-                onTouchTap={this._confirmSucc}
-            />
+                onTouchTap={this._confirmSucc}/>
         ];
         return (
             <div>
