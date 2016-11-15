@@ -190,7 +190,7 @@ router.get('/sendMail', auth.mustLogin(), function *() {
         throw new BusinessError(409, '无操作权限');
     }
     let userIds = teamReport.list.map(x => x.userId);
-    let users = yield User.find({id: {$in: userIds}}).exec();
+    let users = yield User.find({_id: {$in: userIds}}).exec();
     users = users.map(u => u.toObject());
     let list = teamReport.list.map(x => x.toObject());
     list.forEach(x => {
@@ -201,6 +201,7 @@ router.get('/sendMail', auth.mustLogin(), function *() {
     util.sendMail({
         from: `"${this.state.loginUser.nickname}" <${config.mail.auth.user}>`,
         cc: cc.join(','),
+        subject: team.name + teamReport.periodDesc,
         html: html
     });
     this.body = {code: 200};

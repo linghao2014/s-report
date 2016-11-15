@@ -140,5 +140,47 @@ router.get('/search', auth.mustLogin(), function* () {
         list: list
     };
 });
+/**
+ * 更新个人信息
+ */
+router.post('/upinfo', auth.mustLogin(), function*() {
+    let params = this.request.params;
+    let loginUser = this.state.loginUser;
+    if (params.nickname) {
+        loginUser.nickname = params.nickname;
+    }
+    if (params.workMail) {
+        loginUser.workMail = params.workMail;
+    }
+    if (params.avatar) {
+        loginUser.avatar = params.avatar;
+    }
+    yield loginUser.save();
+    this.body = {
+        code: 200
+    };
+});
+
+/**
+ * 更新个人信息
+ */
+router.post('/uppass', auth.mustLogin(), function*() {
+    let params = this.request.params;
+    if (!params.oldPass || !params.newPass) {
+        throw new BusinessError(ErrCode.INVALID_PARAM);
+    }
+    let user = yield thunkify(auth.authenticate)(this.state.loginUser.username, params.oldPass);
+    if (!user) {
+        throw new BusinessError(414, '该帐号未注册');
+    }
+    if (!user.id) {
+        throw new BusinessError(409, '原密码不正确');
+    }
+    yield thunkify(user.setPassword).call(user, params.newPass);
+    yield user.save();
+    this.body = {
+        code: 200
+    };
+});
 
 module.exports = router;

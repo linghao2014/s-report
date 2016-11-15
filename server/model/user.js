@@ -7,7 +7,8 @@ let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
     nickname: String,
     workMail: String,
-    groupId: String
+    groupId: String,
+    avatar: String
 }, {
     ignores: ['salt', 'hash']
 });
